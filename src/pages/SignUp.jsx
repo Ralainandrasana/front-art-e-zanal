@@ -13,7 +13,7 @@ function SignIn() {
         role: '',
     });
 
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
