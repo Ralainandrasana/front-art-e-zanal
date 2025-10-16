@@ -133,15 +133,8 @@
 
 .titlePanier {
     display: flex;
-    justify-content: left;
-    border-bottom: solid 2px var(--gray-border);
-}
-
-.titlePanier h3 {
-    display: flex;
     justify-content: center;
-    border-bottom: solid 2px var(--blue-footer);
-    padding-bottom: 30px;
+    border-bottom: solid 2px var(--gray-border);
 }
 
 .titlePanier .right {
@@ -162,77 +155,27 @@
 
 .content2 {
     margin-top: 50px;
-    padding: 50px 0 50px 0;
 }
 
-.content2 .body {
+.content2 .bodyPub {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    margin-top: 30px;
+}
+
+.content2 .bodyPub .cardPub {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 10px;
+    background: #DFDADA;
+    border-radius: 15px;
+    margin: 10px;
 }
 
-.content2 .body .articles .card {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    padding: 5px 0 5px 0;
-}
-
-.content2 .body .articles .card .center {
-    margin: 0 20px 0 0;
-}
-
-.content2 .body .articles .card h2 {
-    margin-bottom: 15px;
-}
-
-.content2 .body .articles .card .right .action {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--blue-line-footer);
-    padding: 5px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-}
-
-.content2 .body .articles .card .right .action button,
-.content2 .body .articles .card .right .action p {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: white;
-    width: 25px;
-    height: 25px;
-    text-align: center;
-    font-size: 20px;
-}
-
-.content2 .savoirPlus {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 20px 0 50px 0;
-}
-
-.content2 .savoirPlus button {
-    padding: 5px 50px 5px 50px;
-    border: none;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.content2 .content .li {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100px;
-    cursor: pointer;
+.content2 .bodyPub .cardPub p {
+    padding: 0px 0 10px;
 }
 
 .content2 .content .li img {
@@ -258,104 +201,21 @@
     align-items: center;
 }
 
-.payer .wrapPayer {
-    background: #EFD5D5;
-    padding: 10px;
-    border-radius: 10px;
-    /* font-weight: bold; */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.payer .wrapPayer p {
-    margin: 10px 0 5px 0;
-}
-
-.payer .wrapPayer button {
-    background: var(--green);
+.desc .btnPub button {
+    background: var(--blue-footer);
     color: white;
     border: none;
-    padding: 5px;
-    width: 50%;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-top: 15px;
-}
-
-.operateur {
-    width: 500px;
-    height: 85px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 10px 20px 10px 20px;
     border-radius: 10px;
-    margin: 10px 0 10px 0;
-    padding-right: 30px;
-}
-
-.operateur img {
-    border-radius: 10px;
-}
-
-.telma {
-    background: #0F0F0F;
-}
-
-.airtel {
-    background: #E3E2E2;
-}
-
-.body .left .bottom {
-    background: #F8F8F8;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    border-radius: 20px;
-}
-
-.body .left .bottom p {
-    display: flex;
-    align-items: center;
-}
-
-.body .left .bottom h1 {
-    margin: 10px;
-}
-
-.body .right input {
-    width: 400px;
-    height: 40px;
-    outline: none;
-    border: solid 2px #E0E5F2;
-    border-radius: 10px;
-    text-indent: 10px;
-    margin-bottom: 20px;
-}
-
-.body .right h1 {
-    margin-bottom: 50px;
-    text-align: center;
-}
-
-.body .btn {
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
 }
 
-.body {
-    padding-top: 60px;
-}
-
-.body .btn button {
-    /* width: 70px; */
-    color: white;
-    background: var(--green);
-    border-radius: 10px;
-    border: none;
-    padding: 10px 30px 10px 30px;
-    margin: 10px 0 10px 0;
+.desc .btnPub {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     cursor: pointer;
 }

@@ -133,15 +133,8 @@
 
 .titlePanier {
     display: flex;
-    justify-content: left;
-    border-bottom: solid 2px var(--gray-border);
-}
-
-.titlePanier h3 {
-    display: flex;
     justify-content: center;
-    border-bottom: solid 2px var(--blue-footer);
-    padding-bottom: 30px;
+    border-bottom: solid 2px var(--gray-border);
 }
 
 .titlePanier .right {
@@ -162,7 +155,6 @@
 
 .content2 {
     margin-top: 50px;
-    padding: 50px 0 50px 0;
 }
 
 .content2 .body {
@@ -235,13 +227,10 @@
     cursor: pointer;
 }
 
-.content2 .content .li img {
-    background: var(--gray-border);
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
+.content2 .bodyDetails .photo {
     padding: 10px;
     margin: 10px;
+    width: 350px;
 }
 
 .content2 .content {
@@ -283,79 +272,6 @@
     margin-top: 15px;
 }
 
-.operateur {
-    width: 500px;
-    height: 85px;
+.bodyDetails .top {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 10px;
-    margin: 10px 0 10px 0;
-    padding-right: 30px;
-}
-
-.operateur img {
-    border-radius: 10px;
-}
-
-.telma {
-    background: #0F0F0F;
-}
-
-.airtel {
-    background: #E3E2E2;
-}
-
-.body .left .bottom {
-    background: #F8F8F8;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    border-radius: 20px;
-}
-
-.body .left .bottom p {
-    display: flex;
-    align-items: center;
-}
-
-.body .left .bottom h1 {
-    margin: 10px;
-}
-
-.body .right input {
-    width: 400px;
-    height: 40px;
-    outline: none;
-    border: solid 2px #E0E5F2;
-    border-radius: 10px;
-    text-indent: 10px;
-    margin-bottom: 20px;
-}
-
-.body .right h1 {
-    margin-bottom: 50px;
-    text-align: center;
-}
-
-.body .btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.body {
-    padding-top: 60px;
-}
-
-.body .btn button {
-    /* width: 70px; */
-    color: white;
-    background: var(--green);
-    border-radius: 10px;
-    border: none;
-    padding: 10px 30px 10px 30px;
-    margin: 10px 0 10px 0;
-    cursor: pointer;
 }

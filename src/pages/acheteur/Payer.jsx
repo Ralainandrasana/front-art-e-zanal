@@ -30,22 +30,19 @@ function Payer() {
                     <div className="titlePanier">
                         <h3 className="left">Payement</h3>
                     </div>
-                    <div className="back">
-                        <img src="icons/chevron-left.png" alt="" />
-                    </div>
                     <div className="body">
                         <div className="left">
                             <div className="top">
-                                <p>Methode de payement</p>
-                                <div className="operateur">
+                                <strong>Methode de payement</strong>
+                                <div className="operateur telma">
                                     <img src="logos/telma.png" alt="" />
                                     <input type="radio" name="operateur" id="" />
                                 </div>
-                                <div className="operateur">
+                                <div className="operateur airtel">
                                     <img src="logos/airtel.png" alt="" />
                                     <input type="radio" name="operateur" id="" />
                                 </div>
-                                <div className="operateur">
+                                <div className="operateur orange">
                                     <img src="logos/orange.png" alt="" />
                                     <input type="radio" name="operateur" id="" />
                                 </div>
@@ -65,7 +62,9 @@ function Payer() {
                                 <label htmlFor="nom">Prenom</label><br /><input type="text" /><br />
                                 <label htmlFor="nom">Numéro Téléphone</label><br /><input type="text" placeholder='+261...' /><br />
                                 <label htmlFor="nom">code</label><br /><input type="text" placeholder='XXXX' /><br />
-                                <button>Payer</button>
+                                <div className="btn">
+                                    <button>Payer</button>
+                                </div>
                             </div>
                         </div>
                     </div>
