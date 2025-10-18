@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Space, Modal, Form, Input, message, Upload, Row, Col, Select } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
-import { apiProduit } from '../../api'; // ← utilise ton fichier api.jsx
+import * as api from '../../api'; // ← utilise ton fichier api.jsx
 import axios from 'axios';
 
 const { Option } = Select;
@@ -18,9 +18,10 @@ const Publications = () => {
 
   const fetchProduits = async () => {
     try {
-      const response = await apiProduit.get('/');
+      const response = await api.apiProduit.get('/');
       setProduits(response.data);
     } catch (error) {
+      console.error(error);
       message.error("Erreur lors du chargement des produits 😢");
     }
   };
@@ -61,10 +62,11 @@ const Publications = () => {
       cancelText: "Non",
       onOk: async () => {
         try {
-          await apiProduit.delete(`${id_produit}/`);
+          await api.apiProduit.delete(`${id_produit}/`);
           message.success("Produit supprimé ✅");
           fetchProduits();
         } catch (error) {
+          console.error(error);
           message.error("Erreur lors de la suppression ❌");
         }
       },
