@@ -7,7 +7,10 @@ import Panier from "./pages/acheteur/Panier";
 import Publication from "./pages/acheteur/Publication";
 import Details from "./pages/acheteur/Details";
 import Payer from "./pages/acheteur/Payer";
-
+import Publier from "./pages/vendeur/Publier";  // layout du vendeur
+import Publications from "./pages/vendeur/Publications";
+import Commandes from "./pages/vendeur/Commandes";
+import Accueil from "./pages/vendeur/Accueil";  // page d'accueil du vendeur
 
 const router = createBrowserRouter([
     {
@@ -41,7 +44,16 @@ const router = createBrowserRouter([
     {
         path: "/Publication",
         element: <Publication />,
-    }
+    },
+    {
+        path: "/Vendeur",
+        element: <Publier />,
+        children: [
+            { index: true, element: <Accueil /> },
+            { path: "publications", element: <Publications /> },
+            { path: "commandes", element: <Commandes /> },
+        ],
+    },
 ]);
 
 export default router;
