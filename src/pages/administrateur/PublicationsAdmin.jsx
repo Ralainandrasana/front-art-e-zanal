@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, Row, Col, Typography, Button, Modal, message, Tag } from "antd";
+import { Card, Row, Col, Typography, Button, Modal, message, Tag, Pagination } from "antd";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -36,7 +36,27 @@ const PublicationsAdmin = () => {
             prix: "60 000 Ar",
             statut: "En attente",
         },
+        {
+            id: 4,
+            image: "/produits/tapis_raphia.jpg",
+            nomProduit: "Tapis traditionnel en raphia",
+            reference: "ART-004",
+            marque: "SoaDesign",
+            vendeur: "Andry Michel",
+            prix: "60 000 Ar",
+            statut: "En attente",
+        },
+        // Ajoute d'autres publications si besoin pour tester la pagination
     ]);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 6; // nombre de publications par page
+
+    // Publications à afficher sur la page actuelle
+    const currentPublications = publications.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
 
     // --- Fonction de validation ---
     const handleValidate = (id) => {
@@ -48,7 +68,7 @@ const PublicationsAdmin = () => {
         message.success("✅ Publication validée avec succès !");
     };
 
-    // --- Fonction de refus (avec confirmation) ---
+    // --- Fonction de refus ---
     const handleDecline = (id) => {
         Modal.confirm({
             title: "Refuser cette publication ?",
@@ -77,7 +97,7 @@ const PublicationsAdmin = () => {
             </Paragraph>
 
             <Row gutter={[16, 16]} style={{ marginTop: 20 }}>
-                {publications.map((pub) => (
+                {currentPublications.map((pub) => (
                     <Col xs={24} sm={12} md={8} key={pub.id}>
                         <Card
                             hoverable
@@ -101,9 +121,7 @@ const PublicationsAdmin = () => {
                         >
                             <div>
                                 <Title level={5}>{pub.nomProduit}</Title>
-                                <Text type="secondary">
-                                    Référence : {pub.reference}
-                                </Text>
+                                <Text type="secondary">Référence : {pub.reference}</Text>
                                 <br />
                                 <Text>Marque : {pub.marque}</Text>
                                 <br />
@@ -148,6 +166,15 @@ const PublicationsAdmin = () => {
                     </Col>
                 ))}
             </Row>
+
+            {/* Pagination */}
+            <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={publications.length}
+                onChange={page => setCurrentPage(page)}
+                style={{ marginTop: 20, textAlign: "center" }}
+            />
         </div>
     );
 };
