@@ -1,175 +1,226 @@
-import React, { useState } from 'react';
-import { Table, Button, Space, Modal, Form, Input, message, Upload, Row, Col } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Table, Button, Space, Modal, Form, Input, message, Upload, Row, Col, Select } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
+import { apiProduit } from '../../api'; // ← utilise ton fichier api.jsx
+import axios from 'axios';
+
+const { Option } = Select;
 
 const Publications = () => {
-    const [livres, setLivres] = useState([
-        { id: 1, titre: 'L’Alchimiste', auteur: 'Paulo Coelho', annee: 1988 },
-        { id: 2, titre: 'Le Petit Prince', auteur: 'Antoine de Saint-Exupéry', annee: 1943 },
-        { id: 3, titre: '1984', auteur: 'George Orwell', annee: 1949 },
-    ]);
+  const [produits, setProduits] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm();
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [form] = Form.useForm();
+  // 🔹 Charger la liste des produits au montage
+  useEffect(() => {
+    fetchProduits();
+  }, []);
 
-    const handleAdd = (values) => {
-        const newLivre = {
-            id: livres.length + 1,
-            ...values,
-        };
-        setLivres([...livres, newLivre]);
-        setIsModalOpen(false);
-        message.success('Livre ajouté avec succès ✅');
-        form.resetFields();
-    };
+  const fetchProduits = async () => {
+    try {
+      const response = await apiProduit.get('/');
+      setProduits(response.data);
+    } catch (error) {
+      message.error("Erreur lors du chargement des produits 😢");
+    }
+  };
 
-    const handleDelete = (id) => {
-        setLivres(livres.filter((livre) => livre.id !== id));
-        message.success('Livre supprimé 🗑️');
-    };
+  // 🔹 Ajout d’un produit
+  const handleAdd = async (values) => {
+    try {
+      const formData = new FormData();
+      formData.append("nomProduit", values.nomProduit);
+      formData.append("descriptionProduit", values.descriptionProduit);
+      formData.append("prixUnitaire", values.prixUnitaire);
+      formData.append("quantite", values.quantite);
+      formData.append("id_category", values.id_category);
+      formData.append("id_user", 1); // ⚠️ à remplacer par le vendeur connecté (depuis localStorage)
+      if (values.image && values.image[0]) {
+        formData.append("image", values.image[0].originFileObj);
+      }
 
-    const columns = [
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            width: 60,
-        },
-        {
-            title: 'Titre',
-            dataIndex: 'titre',
-            key: 'titre',
-        },
-        {
-            title: 'Auteur',
-            dataIndex: 'auteur',
-            key: 'auteur',
-        },
-        {
-            title: 'Année',
-            dataIndex: 'annee',
-            key: 'annee',
-            width: 100,
-        },
-        {
-            title: 'Actions',
-            key: 'actions',
-            render: (_, record) => (
-                <Space>
-                    <Button icon={<EyeOutlined />} size="small" />
-                    <Button icon={<EditOutlined />} size="small" />
-                    <Button
-                        danger
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => handleDelete(record.id)}
-                    />
-                </Space>
-            ),
-        },
-    ];
+      await axios.post("http://127.0.0.1:8000/api/produit/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-    return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                <h2>📘 Liste des publications</h2>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsModalOpen(true)}
+      message.success("Produit ajouté avec succès ✅");
+      fetchProduits();
+      setIsModalOpen(false);
+      form.resetFields();
+    } catch (error) {
+      console.error(error);
+      message.error("Erreur lors de l’ajout du produit ❌");
+    }
+  };
+
+  // 🔹 Suppression d’un produit
+  const handleDelete = async (id_produit) => {
+    Modal.confirm({
+      title: "Supprimer ce produit ?",
+      okText: "Oui",
+      cancelText: "Non",
+      onOk: async () => {
+        try {
+          await apiProduit.delete(`${id_produit}/`);
+          message.success("Produit supprimé ✅");
+          fetchProduits();
+        } catch (error) {
+          message.error("Erreur lors de la suppression ❌");
+        }
+      },
+    });
+  };
+
+  // 🔹 Colonnes du tableau
+  const columns = [
+    {
+      title: "Image",
+      dataIndex: "image",
+      key: "image",
+      render: (image) =>
+        image ? (
+          <img src={`http://127.0.0.1:8000${image}`} alt="Produit" width="60" />
+        ) : (
+          "Aucune"
+        ),
+    },
+    { title: "Nom du produit", dataIndex: "nomProduit", key: "nomProduit" },
+    { title: "Prix (Ar)", dataIndex: "prixUnitaire", key: "prixUnitaire" },
+    { title: "Quantité", dataIndex: "quantite", key: "quantite" },
+    {
+      title: "Catégorie",
+      dataIndex: ["id_category", "nomCategory"],
+      key: "id_category",
+      render: (text) => text || "—",
+    },
+    {
+      title: "Vendeur",
+      dataIndex: ["id_user", "nom"],
+      key: "id_user",
+      render: (text) => text || "—",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space>
+          <Button icon={<EyeOutlined />} onClick={() => console.log(record)}>Voir</Button>
+          <Button icon={<DeleteOutlined />} danger onClick={() => handleDelete(record.id_produit)}>
+            Supprimer
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <div style={{ padding: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+        <h2>🧱 Liste des publications</h2>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>
+          Ajouter un produit
+        </Button>
+      </div>
+
+      <Table
+        dataSource={produits}
+        columns={columns}
+        rowKey="id_produit"
+        bordered
+        pagination={{ pageSize: 5 }}
+      />
+
+      {/* --- Modal d'ajout --- */}
+      <Modal
+        title="Ajouter un produit"
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        onOk={() => form.submit()}
+        okText="Ajouter"
+        cancelText="Annuler"
+        width={700}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleAdd}
+        >
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                label="Image"
+                name="image"
+                valuePropName="fileList"
+                getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}
+              >
+                <Upload
+                  listType="picture-card"
+                  beforeUpload={() => false}
+                  maxCount={1}
                 >
-                    Ajouter une publication
-                </Button>
-            </div>
+                  <div>
+                    <UploadOutlined />
+                    <div style={{ marginTop: 8 }}>Choisir</div>
+                  </div>
+                </Upload>
+              </Form.Item>
+            </Col>
 
-            <Table
-                dataSource={livres}
-                columns={columns}
-                rowKey="id"
-                bordered
-                pagination={{ pageSize: 5 }}
-            />
+            <Col span={16}>
+              <Form.Item
+                label="Nom du produit"
+                name="nomProduit"
+                rules={[{ required: true, message: 'Veuillez saisir le nom du produit' }]}
+              >
+                <Input placeholder="Ex : Brique" />
+              </Form.Item>
 
-            {/* --- Modal pour ajouter un livre --- */}
-            <Modal
-                title="Ajouter un produit"
-                open={isModalOpen}
-                onCancel={() => setIsModalOpen(false)}
-                onOk={() => form.submit()}
-                okText="Ajouter"
-                cancelText="Annuler"
-                width={700} // un peu plus large pour bien afficher les deux colonnes
-            >
-                <Form form={form} layout="vertical" onFinish={handleAdd}>
-                    <Row gutter={16}>
-                        {/* ===== COLONNE GAUCHE : IMAGE ===== */}
-                        <Col span={8}>
-                            <Form.Item
-                                label="Image du produit"
-                                name="image"
-                                valuePropName="fileList"
-                                getValueFromEvent={(e) => Array.isArray(e) ? e : e && e.fileList}
-                            >
-                                <Upload
-                                    listType="picture-card"
-                                    beforeUpload={() => false} // Empêche l’upload automatique
-                                    maxCount={1}
-                                    style={{ width: '100%' }}
-                                >
-                                    <div>
-                                        <PlusOutlined />
-                                        <div style={{ marginTop: 8 }}>Ajouter</div>
-                                    </div>
-                                </Upload>
-                            </Form.Item>
-                        </Col>
+              <Form.Item
+                label="Description"
+                name="descriptionProduit"
+              >
+                <Input.TextArea rows={3} placeholder="Décrivez le produit..." />
+              </Form.Item>
 
-                        {/* ===== COLONNE DROITE : INFOS PRODUIT ===== */}
-                        <Col span={16}>
-                            <Form.Item
-                                label="Nom du produit"
-                                name="nom"
-                                rules={[{ required: true, message: 'Veuillez saisir le nom du produit' }]}
-                            >
-                                <Input placeholder="Ex : Casque Bluetooth" />
-                            </Form.Item>
+              <Row gutter={12}>
+                <Col span={12}>
+                  <Form.Item
+                    label="Quantité"
+                    name="quantite"
+                    rules={[{ required: true, message: 'Indiquez la quantité' }]}
+                  >
+                    <Input type="number" min={1} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label="Prix (Ar)"
+                    name="prixUnitaire"
+                    rules={[{ required: true, message: 'Indiquez le prix' }]}
+                  >
+                    <Input type="number" min={0} />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-                            <Form.Item
-                                label="Détails"
-                                name="details"
-                                rules={[{ required: true, message: 'Veuillez décrire le produit' }]}
-                            >
-                                <Input.TextArea rows={3} placeholder="Ex : Casque sans fil avec réduction de bruit..." />
-                            </Form.Item>
-
-                            <Row gutter={12}>
-                                <Col span={12}>
-                                    <Form.Item
-                                        label="Quantité"
-                                        name="quantite"
-                                        rules={[{ required: true, message: 'Veuillez indiquer la quantité' }]}
-                                    >
-                                        <Input type="number" min={1} placeholder="Ex : 10" />
-                                    </Form.Item>
-                                </Col>
-
-                                <Col span={12}>
-                                    <Form.Item
-                                        label="Prix du produit (Ar)"
-                                        name="prix"
-                                        rules={[{ required: true, message: 'Veuillez saisir le prix du produit' }]}
-                                    >
-                                        <Input type="number" min={0} placeholder="Ex : 75000" />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Col>
-                    </Row>
-                </Form>
-            </Modal>
-
-        </div>
-    );
+              <Form.Item
+                label="Catégorie"
+                name="id_category"
+                rules={[{ required: true, message: 'Sélectionnez une catégorie' }]}
+              >
+                <Select placeholder="Choisir une catégorie">
+                  <Option value={1}>Brique</Option>
+                  <Option value={2}>Sable</Option>
+                  <Option value={3}>Moellon</Option>
+                  <Option value={4}>Gravillon</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
+    </div>
+  );
 };
 
 export default Publications;
