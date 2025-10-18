@@ -6,7 +6,7 @@ const Commandes = () => {
             <h3>Liste  des  commandes</h3>
             <div className="contentCommandes">
                 <div className="cardCommande">
-                    <img src="public/images/sable.png" alt="" width={"100px"} height={"100px"} />
+                    <img src="/images/sable.png" alt="sable" width="100px" height="100px" />
                     <h4>sable gros</h4>
                     <p>Référence 06084467 Marque NFA GRANITE</p>
                     <p>Client: Mijoro Mrason</p>

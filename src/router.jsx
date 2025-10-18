@@ -10,6 +10,7 @@ import Payer from "./pages/acheteur/Payer";
 import Publier from "./pages/vendeur/Publier";  // layout du vendeur
 import Publications from "./pages/vendeur/Publications";
 import Commandes from "./pages/vendeur/Commandes";
+import Parametres from "./pages/vendeur/Parametres";
 import Accueil from "./pages/vendeur/Accueil";  // page d'accueil du vendeur
 
 const router = createBrowserRouter([
@@ -52,6 +53,7 @@ const router = createBrowserRouter([
             { index: true, element: <Accueil /> },
             { path: "publications", element: <Publications /> },
             { path: "commandes", element: <Commandes /> },
+            { path: "parametres", element: <Parametres /> },
         ],
     },
 ]);

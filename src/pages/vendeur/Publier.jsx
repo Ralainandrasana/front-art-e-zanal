@@ -3,9 +3,11 @@ import { Layout, Menu } from "antd";
 import {
     HomeOutlined,
     BookOutlined,
+    SettingOutlined,
 } from "@ant-design/icons";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import 'antd/dist/reset.css';
+import "antd/dist/reset.css";
+import "../../styles/vendeur.css";
 
 const { Header, Sider, Content } = Layout;
 
@@ -15,29 +17,51 @@ const Publier = () => {
     const currentPath = location.pathname;
 
     return (
-        <Layout style={{ minHeight: "100vh" }}>
-            {/* MENU GAUCHE */}
-            <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
-                <div
-                    style={{
-                        height: 64,
-                        margin: 16,
-                        background: "rgba(255,255,255,0.2)",
-                        color: "white",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: "bold",
-                        borderRadius: 8,
-                    }}
-                >
-                    {collapsed ? "📚" : "Vendeur"}
-                </div>
+        <Layout style={{ minHeight: "100vh", background: "#f5f6fa" }}>
+            {/* === MENU GAUCHE CLAIR === */}
+            <Sider
+                collapsible
+                collapsed={collapsed}
+                onCollapse={setCollapsed}
+                theme="light"
+                style={{
+                    background: "#fff",
+                    borderRight: "1px solid #f0f0f0",
+                    boxShadow: "2px 0 5px rgba(0,0,0,0.05)",
+                }}
+            >
+                {collapsed ? (
+                    <img
+                        src="/logos/logoPlateforme.png"
+                        alt="Logo"
+                        style={{ width: 40, height: 40, objectFit: "contain" }}
+                    />
+                ) : (
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            color: "#1890ff",
+                            fontWeight: "bold",
+                            fontSize: "1.1rem",
+                        }}
+                    >
+                        <img
+                            src="/logos/logoPlateforme.png"
+                            alt="Logo"
+                            style={{ width: 40, height: 40, objectFit: "contain" }}
+                        />
+                        art-e-zanal
+                    </div>
+                )}
+
+
 
                 <Menu
-                    theme="light"
                     mode="inline"
                     selectedKeys={[currentPath]}
+                    style={{ border: "none" }}
                 >
                     <Menu.Item key="/Vendeur" icon={<HomeOutlined />}>
                         <Link to="/Vendeur">Accueil</Link>
@@ -48,10 +72,13 @@ const Publier = () => {
                     <Menu.Item key="/Vendeur/commandes" icon={<BookOutlined />}>
                         <Link to="/Vendeur/commandes">Commandes</Link>
                     </Menu.Item>
+                    <Menu.Item key="/Vendeur/parametres" icon={<SettingOutlined />}>
+                        <Link to="/Vendeur/parametres">Paramètres</Link>
+                    </Menu.Item>
                 </Menu>
             </Sider>
 
-            {/* HEADER + CONTENU */}
+            {/* === HEADER + CONTENU === */}
             <Layout>
                 <Header
                     style={{
@@ -60,11 +87,13 @@ const Publier = () => {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                     }}
                 >
-                    <h2 style={{ margin: 0 }}>Espace vendeur</h2>
-                    <div>👤 Admin</div>
+                    <h2 style={{ margin: 0, color: "#1890ff" }}>Espace vendeur</h2>
+                    <div style={{ color: "#555" }}>
+                        
+                    </div>
                 </Header>
 
                 <Content
@@ -73,9 +102,10 @@ const Publier = () => {
                         padding: 20,
                         background: "#fff",
                         borderRadius: 8,
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
                     }}
                 >
-                    <Outlet /> {/* 👉 les sous-pages du vendeur s’affichent ici */}
+                    <Outlet />
                 </Content>
             </Layout>
         </Layout>
