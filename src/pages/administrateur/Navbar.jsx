@@ -4,6 +4,7 @@ import {
     HomeOutlined,
     BookOutlined,
     SettingOutlined,
+    CreditCardOutlined, ReadOutlined,
 } from "@ant-design/icons";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import "antd/dist/reset.css";
@@ -66,10 +67,10 @@ const Navbar = () => {
                     <Menu.Item key="/administrateur" icon={<HomeOutlined />}>
                         <Link to="/administrateur">Accueil</Link>
                     </Menu.Item>
-                    <Menu.Item key="/administrateur/transactionsAdmin" icon={<BookOutlined />}>
+                    <Menu.Item key="/administrateur/transactionsAdmin" icon={<CreditCardOutlined  />}>
                         <Link to="/administrateur/transactionsAdmin">Transactions</Link>
                     </Menu.Item>
-                    <Menu.Item key="/administrateur/publicationsAdmin" icon={<BookOutlined />}>
+                    <Menu.Item key="/administrateur/publicationsAdmin" icon={<ReadOutlined  />}>
                         <Link to="/administrateur/publicationsAdmin">Publications</Link>
                     </Menu.Item>
                     <Menu.Item key="/administrateur/parametresAdmin" icon={<SettingOutlined />}>
