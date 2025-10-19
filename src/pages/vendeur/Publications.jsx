@@ -1,46 +1,94 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Modal, Form, Input, message, Upload, Row, Col, Select } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
-import { apiProduit } from '../../api'; // ← utilise ton fichier api.jsx
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  Button,
+  Space,
+  Modal,
+  Form,
+  Input,
+  message,
+  Upload,
+  Row,
+  Col,
+  Select,
+} from "antd";
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import { apiProduit, apiCategory } from "../../api";
+import axios from "axios";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
 const Publications = () => {
   const [produits, setProduits] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
 
-  // 🔹 Charger la liste des produits au montage
   useEffect(() => {
     fetchProduits();
+    fetchCategories();
   }, []);
 
+  // 🔹 Charger les produits
   const fetchProduits = async () => {
     try {
-      const response = await apiProduit.get('/');
+      const response = await apiProduit.get("/");
       setProduits(response.data);
     } catch (error) {
       message.error("Erreur lors du chargement des produits 😢");
     }
   };
 
-  // 🔹 Ajout d’un produit
+  // 🔹 Charger les catégories
+  const fetchCategories = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const response = await apiCategory.get("/", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    setCategories(response.data);
+  } catch (error) {
+    message.error("Erreur lors du chargement des catégories");
+    console.error(error);
+  }
+};
+
+  // 🔹 Ajouter un produit avec JWT
   const handleAdd = async (values) => {
     try {
+      const token = localStorage.getItem("token"); // Récupère le JWT
+
+      if (!token) {
+        message.error("Vous devez être connecté pour ajouter un produit");
+        return;
+      }
+
       const formData = new FormData();
       formData.append("nomProduit", values.nomProduit);
       formData.append("descriptionProduit", values.descriptionProduit);
       formData.append("prixUnitaire", values.prixUnitaire);
       formData.append("quantite", values.quantite);
       formData.append("id_category", values.id_category);
-      formData.append("id_user", 1); // ⚠️ à remplacer par le vendeur connecté (depuis localStorage)
       if (values.image && values.image[0]) {
         formData.append("image", values.image[0].originFileObj);
       }
 
       await axios.post("http://127.0.0.1:8000/api/produit/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`, // JWT envoyé au backend
+        },
       });
 
       message.success("Produit ajouté avec succès ✅");
@@ -53,7 +101,7 @@ const Publications = () => {
     }
   };
 
-  // 🔹 Suppression d’un produit
+  // 🔹 Supprimer un produit
   const handleDelete = async (id_produit) => {
     Modal.confirm({
       title: "Supprimer ce produit ?",
@@ -61,7 +109,10 @@ const Publications = () => {
       cancelText: "Non",
       onOk: async () => {
         try {
-          await apiProduit.delete(`${id_produit}/`);
+          const token = localStorage.getItem("token");
+          await axios.delete(`http://127.0.0.1:8000/api/produit/${id_produit}/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
           message.success("Produit supprimé ✅");
           fetchProduits();
         } catch (error) {
@@ -78,13 +129,10 @@ const Publications = () => {
       dataIndex: "image",
       key: "image",
       render: (image) =>
-        image ? (
-          <img src={`http://127.0.0.1:8000${image}`} alt="Produit" width="60" />
-        ) : (
-          "Aucune"
-        ),
+        image ? <img src={`http://127.0.0.1:8000${image}`} width="60" alt="Produit" /> : "Aucune",
     },
-    { title: "Nom du produit", dataIndex: "nomProduit", key: "nomProduit" },
+    { title: "Produit", dataIndex: "nomProduit", key: "nomProduit" },
+    { title: "Description", dataIndex: "descriptionProduit", key: "descriptionProduit" },
     { title: "Prix (Ar)", dataIndex: "prixUnitaire", key: "prixUnitaire" },
     { title: "Quantité", dataIndex: "quantite", key: "quantite" },
     {
@@ -92,6 +140,12 @@ const Publications = () => {
       dataIndex: ["id_category", "nomCategory"],
       key: "id_category",
       render: (text) => text || "—",
+    },
+    {
+      title: "Date de publication",
+      dataIndex: "datePublication",
+      key: "datePublication",
+      render: (text) => (text ? dayjs(text).format("DD/MM/YYYY") : "—"),
     },
     {
       title: "Vendeur",
@@ -104,10 +158,8 @@ const Publications = () => {
       key: "actions",
       render: (_, record) => (
         <Space>
-          <Button icon={<EyeOutlined />} onClick={() => console.log(record)}>Voir</Button>
-          <Button icon={<DeleteOutlined />} danger onClick={() => handleDelete(record.id_produit)}>
-            Supprimer
-          </Button>
+          <Button icon={<EyeOutlined />} onClick={() => console.log(record)} />
+          <Button icon={<DeleteOutlined />} danger onClick={() => handleDelete(record.id_produit)} />
         </Space>
       ),
     },
@@ -115,20 +167,14 @@ const Publications = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
         <h2>🧱 Liste des publications</h2>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>
           Ajouter un produit
         </Button>
       </div>
 
-      <Table
-        dataSource={produits}
-        columns={columns}
-        rowKey="id_produit"
-        bordered
-        pagination={{ pageSize: 5 }}
-      />
+      <Table dataSource={produits} columns={columns} rowKey="id_produit" bordered pagination={{ pageSize: 5 }} />
 
       {/* --- Modal d'ajout --- */}
       <Modal
@@ -140,11 +186,7 @@ const Publications = () => {
         cancelText="Annuler"
         width={700}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleAdd}
-        >
+        <Form form={form} layout="vertical" onFinish={handleAdd}>
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item
@@ -153,11 +195,7 @@ const Publications = () => {
                 valuePropName="fileList"
                 getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}
               >
-                <Upload
-                  listType="picture-card"
-                  beforeUpload={() => false}
-                  maxCount={1}
-                >
+                <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
                   <div>
                     <UploadOutlined />
                     <div style={{ marginTop: 8 }}>Choisir</div>
@@ -165,20 +203,16 @@ const Publications = () => {
                 </Upload>
               </Form.Item>
             </Col>
-
             <Col span={16}>
               <Form.Item
                 label="Nom du produit"
                 name="nomProduit"
-                rules={[{ required: true, message: 'Veuillez saisir le nom du produit' }]}
+                rules={[{ required: true, message: "Veuillez saisir le nom du produit" }]}
               >
                 <Input placeholder="Ex : Brique" />
               </Form.Item>
 
-              <Form.Item
-                label="Description"
-                name="descriptionProduit"
-              >
+              <Form.Item label="Description" name="descriptionProduit">
                 <Input.TextArea rows={3} placeholder="Décrivez le produit..." />
               </Form.Item>
 
@@ -187,7 +221,7 @@ const Publications = () => {
                   <Form.Item
                     label="Quantité"
                     name="quantite"
-                    rules={[{ required: true, message: 'Indiquez la quantité' }]}
+                    rules={[{ required: true, message: "Indiquez la quantité" }]}
                   >
                     <Input type="number" min={1} />
                   </Form.Item>
@@ -196,7 +230,7 @@ const Publications = () => {
                   <Form.Item
                     label="Prix (Ar)"
                     name="prixUnitaire"
-                    rules={[{ required: true, message: 'Indiquez le prix' }]}
+                    rules={[{ required: true, message: "Indiquez le prix" }]}
                   >
                     <Input type="number" min={0} />
                   </Form.Item>
@@ -206,13 +240,14 @@ const Publications = () => {
               <Form.Item
                 label="Catégorie"
                 name="id_category"
-                rules={[{ required: true, message: 'Sélectionnez une catégorie' }]}
+                rules={[{ required: true, message: "Sélectionnez une catégorie" }]}
               >
                 <Select placeholder="Choisir une catégorie">
-                  <Option value={1}>Brique</Option>
-                  <Option value={2}>Sable</Option>
-                  <Option value={3}>Moellon</Option>
-                  <Option value={4}>Gravillon</Option>
+                  {categories.map((cat) => (
+                    <Option key={cat.id_category} value={cat.id_category}>
+                      {cat.nomCategory}
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
             </Col>

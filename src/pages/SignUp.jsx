@@ -1,7 +1,7 @@
 import '../styles/signUp.css'
 import Header from '../components/Header'
 import { useState } from 'react'
-import api from '../api'
+import { apiUtilisateur } from "../api";
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 
@@ -20,22 +20,24 @@ function SignIn() {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await api.post('/', formData);
-            toast.success("Inscription réussie !");
-            console.log(response.data);
+    e.preventDefault();
+    try {
+        // ← corrige ici l'URL : c'est "/utilisateurs/" et non "/"
+        const response = await apiUtilisateur.post('/utilisateurs/register/', formData);
 
-            // ✅ redirection automatique après un petit délai
-            setTimeout(() => {
-                navigate('/login'); // ← change '/login' par le vrai chemin de ta page de connexion
-            }, 1500);
+        toast.success("Inscription réussie !");
+        console.log(response.data);
 
-        } catch (error) {
-            console.error("Erreur d'inscription :", error);
-            toast.error("Erreur lors de l'inscription !");
-        }
-    };
+        setTimeout(() => {
+            navigate('/login');
+        }, 1500);
+
+    } catch (error) {
+        console.error("Erreur d'inscription :", error);
+        toast.error("Erreur lors de l'inscription !");
+    }
+};
+
 
     return (
         <>
