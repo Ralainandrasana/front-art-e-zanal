@@ -86,11 +86,14 @@
     border-radius: 5px;
     outline: none;
     text-indent: 10px;
+    color: #00293A;
 }
 
 .contentSignUp .body .right .form {
     padding: 40px 0 30px 0;
 }
+
+
 
 .contentSignUp .body .right .form .btnSubmit button {
     padding: 15px 120px 15px 120px;

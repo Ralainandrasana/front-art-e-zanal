@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function SignIn() {
     const navigate = useNavigate();
-    
+
     const [formData, setFormData] = useState({
         email: '',
         motDePasse: '',
@@ -60,8 +60,8 @@ function SignIn() {
                             <h1>art-e-zanal</h1>
                         </div>
                         <form className="form" onSubmit={handleSubmit}>
-                            <input type="email" name="email" placeholder='votrenom@gmail.com' value={formData.email} onChange={handleChange} required/> <br />
-                            <input type="password" name="motDePasse" placeholder='mot de passe' value={formData.motDePasse} onChange={handleChange} required/>
+                            <input type="email" name="email" placeholder='votrenom@gmail.com' value={formData.email} onChange={handleChange} required /> <br />
+                            <input type="password" name="motDePasse" placeholder='mot de passe' value={formData.motDePasse} onChange={handleChange} required />
                             <div className="btnSubmit">
                                 <button type="submit">Se connecter</button>
                             </div>

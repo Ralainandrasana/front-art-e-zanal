@@ -72,7 +72,7 @@ const Publications = () => {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                <h2>📘 Liste des publications</h2>
+                <h2>Liste des publications</h2>
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}

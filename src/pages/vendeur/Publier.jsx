@@ -4,6 +4,9 @@ import {
     HomeOutlined,
     BookOutlined,
     SettingOutlined,
+    SearchOutlined,
+    BellOutlined,
+    UserOutlined
 } from "@ant-design/icons";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import "antd/dist/reset.css";
@@ -91,8 +94,64 @@ const Publier = () => {
                     }}
                 >
                     <h2 style={{ margin: 0, color: "#1890ff" }}>Espace vendeur</h2>
-                    <div style={{ color: "#555" }}>
-                        
+                    <div className="right"
+                        style={{
+                            background: "#fff",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            width: "30%",
+                        }}
+                    >
+                        <div className="search"
+                            style={{
+                                background: "#fff",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                            }}
+                        >
+                            <div className="iconSearch">
+                                <SearchOutlined style={{
+                                    background: "#F5F7FA",
+                                    width: "40px",
+                                    height: "40px",
+                                    outline: "none",
+                                    borderTopLeftRadius: "10px",
+                                    borderBottomLeftRadius: "10px",
+                                    paddingLeft: "15px"
+                                }} />
+                            </div>
+                            <input type="text" placeholder="Recherche" style={{
+                                background: "#F5F7FA",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                width: "150px",
+                                height: "40px",
+                                border: "none",
+                                outline: "none",
+                                borderTopRightRadius: "10px",
+                                borderBottomRightRadius: "10px",
+                            }} />
+                        </div>
+                        <BellOutlined style={{
+                            background: "#F5F7FA",
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "50%",
+                            justifyContent: "center",
+                            alignContent: "center",
+                        }} />
+                        <UserOutlined style={{
+                            background: "transparent",
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "50%",
+                            justifyContent: "center",
+                            alignContent: "center",
+                            border: "solid 1px black"
+                        }} />
                     </div>
                 </Header>
 
