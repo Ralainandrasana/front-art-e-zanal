@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import '../../styles/details.css'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
+import { StarOutlined } from "@ant-design/icons";
 
 function Details() {
     const navigate = useNavigate();
@@ -40,56 +41,71 @@ function Details() {
                     <div className="bodyDetails">
                         <div className="top">
                             <img src="images/sable.png" alt="" className='photo' />
-                            <div className="text">
-                                <h1>sable gros</h1>
-                                <p>Référence 06084467 Marque NFA GRANITE</p>
-                                <div className="dddd">
-                                    <div className="stars"></div>
-                                    <img src="" alt="" className="pen" />
-                                    <p>Donnez votre  avis</p>
+                            <div className="right">
+                                <div className="text">
+                                    <h1><strong>sable gros</strong></h1>
+                                    <p className='description'>Référence 06084467 Marque NFA GRANITE</p>
+                                    <div className="dddd">
+                                        <div className="stars" style={
+                                            { color: "#73AB05" }
+                                        }>
+                                            <StarOutlined />
+                                            <StarOutlined />
+                                            <StarOutlined />
+                                            <StarOutlined />
+                                            <StarOutlined />
+                                        </div>
+                                        <img src="" alt="" className="pen" />
+                                        <p>Donnez votre  avis</p>
+                                    </div>
+                                    <p>Taille des grains: 0,25 mm</p>
+                                    <p><strong>Prix : 5000ar/sac</strong></p>
                                 </div>
-                                <p>Taille des grains: 0,25 mm</p>
-                                <p>Prix : 5000ar/sac</p>
-                            </div>
-                            <div className="btn1">
-                                <div className="action">
-                                    <button>-</button>
-                                    <p>1</p>
-                                    <button>+</button>
+                                <div className="btn1">
+                                    <div className="action">
+                                        <button>-</button>
+                                        <p>1</p>
+                                        <button>+</button>
+                                    </div>
+                                    <button className='auPanier'>
+                                        <img src="icons/shopping-cart.png" alt="" />
+                                        au panier
+                                    </button>
                                 </div>
-                                <button>
-                                    <img src="icons/shopping-cart.png" alt="" />
-                                    au panier
-                                </button>
-                            </div>
-                            <div className="btn2">
-                                <button>
-                                    <img src="icons/phone-outgoing.png" alt="" />
-                                    <span>Besoin d’aide</span>
-                                    <img src="icons/move-right.png" alt="" />
-                                </button>
-                                <button>
-                                    <img src="icons/wallet-cards.png" alt="" />
-                                    <span>Paiement sécurisé </span>
-                                    <img src="icons/move-right.png" alt="" />
-                                </button>
-                                <button>
-                                    <img src="icons/car.png" alt="" />
-                                    <span>Livraison standard</span>
-                                    <img src="icons/move-right.png" alt="" />
-                                </button>
+                                <div className="btn2">
+                                    <button>
+                                        <img src="icons/phone-outgoing.png" alt="" />
+                                        <span>Besoin d’aide</span>
+                                        <img src="icons/move-right.png" alt="" />
+                                    </button>
+                                    <button>
+                                        <img src="icons/wallet-cards.png" alt="" />
+                                        <span>Paiement sécurisé </span>
+                                        <img src="icons/move-right.png" alt="" />
+                                    </button>
+                                    <button>
+                                        <img src="icons/car.png" alt="" />
+                                        <span>Livraison standard</span>
+                                        <img src="icons/move-right.png" alt="" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div className="bottom">
                             <button className="desc">
                                 <img src="icons/square-pen.png" alt="" />Description
                             </button>
-                            <strong>Caractéristiques produits:</strong>
+                            <div className="cara">
+                                <strong>Caractéristiques produits:</strong>
+                            </div>
+
                             <p>-Taille des grains (mm):  0,25 mm</p>
                             <p>-Aspect visuel: Poudreux, doux au toucher</p>
                             <p>-Usage principal: Enduits fins, finitions</p>
                             <p>-Méthode simple pour reconnaître à la main: colle entre les doigts, lisse</p>
-                            <strong>Donner votre Avis </strong>
+                            <div className="avis">
+                                <strong>Donner votre Avis</strong>
+                            </div>
                             <div className="msg">
                                 <input type="text" placeholder='Ecrire vos messages' />
                                 <button className="send">
