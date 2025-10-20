@@ -22,6 +22,7 @@ function AccueilAcheteur() {
                     <div className="compte-panier">
                         <button><img src="icons/user.png" alt="" /><p>Mon compte</p></button>
                         <button onClick={handleGoPanier}><img src="icons/shop.png" alt="" /><p>Mon panier</p></button>
+                        <button className='notif'><img src="icons/bell.png" alt="" /><div className='nbrNotif'>4</div></button>
                     </div>
                 </div>
                 <div className="menu">
