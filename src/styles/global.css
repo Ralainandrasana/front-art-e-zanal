@@ -33,6 +33,10 @@
     font-size: smaller;
 }
 
+.header p {
+    margin-bottom: 0;
+}
+
 .header .right {
     display: flex;
 }

@@ -74,6 +74,7 @@
     border: none;
     font-weight: bold;
     cursor: pointer;
+    margin-bottom: 0;
 }
 
 .visiteur .menu {
@@ -86,6 +87,7 @@
 .visiteur .menu ul {
     display: flex;
     list-style: none;
+    margin: 0;
 }
 
 .visiteur .menu ul li a {
@@ -115,7 +117,7 @@
 }
 
 .visiteur .header1 .search img {
-    padding: 9px 10px 9px 10px;
+    padding: 11px 10px 10px 10px;
     background: var(--background3);
     border-top-left-radius: 6px;
     border-bottom-left-radius: 6px;
@@ -123,7 +125,7 @@
 
 .visiteur .header1 .search input {
     background: var(--background3);
-    width: 400px;
+    width: 470px;
     border: none;
     padding: 10px 5px 10px 5px;
     outline: none;

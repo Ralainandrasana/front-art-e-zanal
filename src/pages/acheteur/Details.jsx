@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import '../../styles/details.css'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
-import { StarOutlined } from "@ant-design/icons";
+import { StarOutlined, FormOutlined } from "@ant-design/icons";
 
 function Details() {
     const navigate = useNavigate();
@@ -55,8 +55,10 @@ function Details() {
                                             <StarOutlined />
                                             <StarOutlined />
                                         </div>
-                                        <img src="" alt="" className="pen" />
-                                        <p>Donnez votre  avis</p>
+                                        <FormOutlined style={{ fontSize: '20px', margin: "0 10px 0 10px", color: '#000000' }} />
+                                        <p style={
+                                            { margin: 0, borderBottom: "solid 1px black" }
+                                        }>Donnez votre  avis</p>
                                     </div>
                                     <p>Taille des grains: 0,25 mm</p>
                                     <p><strong>Prix : 5000ar/sac</strong></p>

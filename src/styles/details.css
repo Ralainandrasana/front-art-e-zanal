@@ -258,6 +258,13 @@
     padding-bottom: 5px;
 }
 
+.bodyDetails .top .right .text .dddd {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    margin: 20px 0 20px 0;
+}
+
 .bodyDetails .top .right .btn1 .action {
     background: var(--blue-footer);
     display: flex;

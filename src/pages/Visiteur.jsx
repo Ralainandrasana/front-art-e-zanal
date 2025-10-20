@@ -2,6 +2,7 @@ import React from 'react';
 import '../styles/visiteur.css'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import Slides from '../components/Slides'
 import { useNavigate } from "react-router-dom";
 
 function Visiteur() {
@@ -33,16 +34,7 @@ function Visiteur() {
                         <li><a href="#">Contact</a></li>
                     </ul>
                 </div>
-                <div className="header2">
-                    <div className="left">
-                        <h2>Commandez vos matériaux en ligne</h2>
-                        <h1>soutenez les artisans locaux.</h1>
-                        <h2>service rapide et fiable !</h2>
-                    </div>
-                    <div className="right">
-                        <img src="images/brique.png" alt="" />
-                    </div>
-                </div>
+                <Slides />
                 <div className="content1">
                     <div className="title">
                         <h2 className="left">Nos <span className="blue">Promotions</span></h2>
