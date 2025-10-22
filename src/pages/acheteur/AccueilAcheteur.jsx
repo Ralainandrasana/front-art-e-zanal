@@ -9,6 +9,9 @@ function AccueilAcheteur() {
     const handleGoPanier = () => {
         navigate("/Panier");
     };
+    const handleGoCommandes = () => {
+        navigate("/Commandes");
+    };
     return (
         <>
             <Header />
@@ -29,6 +32,7 @@ function AccueilAcheteur() {
                     <ul>
                         <li><a href="#" className="activated">Accueil</a></li>
                         <li><a href="#">Produits</a></li>
+                        <li><a onClick={handleGoCommandes}>Commandes effectués</a></li>
                         <li><a href="#">Contact</a></li>
                     </ul>
                 </div>

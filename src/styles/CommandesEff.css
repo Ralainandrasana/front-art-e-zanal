@@ -103,19 +103,11 @@
     padding: 8px 20px 8px 20px;
     border-radius: 30px;
     margin: 0 10px 0 10px;
-    cursor: pointer;
 }
 
 .acheteur .menu ul li .activated {
     background: var(--blue-footer);
     color: white;
-}
-
-.content1,
-.content2,
-.content3,
-.content4 {
-    margin: 0 100px 0 150px;
 }
 
 .acheteur .header1 .logo {
@@ -139,152 +131,54 @@
     border-bottom-right-radius: 6px;
 }
 
-.title {
+.titlePanier {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     border-bottom: solid 2px var(--gray-border);
 }
 
-.title .right {
+.titlePanier .right {
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
 }
 
-.title h2 {
+.titlePanier h2 {
     border-bottom: solid 3px var(--blue-footer);
     padding-bottom: 10px;
 }
 
-.title .blue {
+.titlePanier .blue {
     color: var(--blue-footer);
 }
 
-.content2 .content .li {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100px;
-    cursor: pointer;
+.contentTable {
+    margin: 50px 150px 0 150px;
 }
 
-.content2 .content .li img {
-    background: var(--gray-border);
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    padding: 10px;
-    margin: 10px;
+.body {
+    padding: 20px;
+    background: #f5f5f5;
+    min-height: 100vh;
 }
 
-.content2 .content {
-    display: flex;
-    justify-content: left;
-    align-items: center;
-    padding: 50px 0 50px 0;
-}
-
-.content2 .wrapContent {
-    width: 60%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.content3 .card {
-    width: 275px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 20px;
-    padding: 30px;
-    font-weight: bold;
-}
-
-.content3 .granite {
-    background: var(--beige);
-    background-position: top right;
-    border: solid 2px var(--orangeBorder);
-}
-
-.content3 .sable {
-    background-position: top right;
-    border: solid var(--red) 2px;
-}
-
-.content3 .mazana {
-    background-position: top right;
-    border: solid var(--green) 2px;
-    background: var(--greenClair);
-}
-
-.through {
-    text-decoration: line-through;
-}
-
-.content3 .card img {
-    width: 150px;
-    height: 150px;
-}
-
-.content3 .card h1 {
-    margin: 20px;
-}
-
-.content3 .content {
-    padding: 50px 0 50px 0;
-}
-
-.content3 .content .wrapContent {
-    display: flex;
-    justify-content: space-between;
-}
-
-.content4 .content .wrapContent {
-    display: flex;
-    justify-content: space-between;
-}
-
-.content4 .content .wrapContent li {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.content4 .content .wrapContent li {
-    width: 200px;
-}
-
-.content4 .content .wrapContent img {
-    background: var(--gray-border);
-    width: 200px;
-    height: 200px;
-    border-radius: 15px;
-}
-
-.content4 .content .wrapContent p {
-    text-align: center;
-    padding: 5px 0 5px 0;
-}
-
-.content4 .content {
-    padding: 50px 0 50px 0;
-}
-
-.notif {
-    position: relative;
-}
-
-.nbrNotif {
+.body .ant-table-thead>tr>th {
+    background-color: #1890ff;
     color: white;
-    background-color: red;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    position: absolute;
-    top: -10px;
-    right: -5px;
+    font-weight: 600;
+}
+
+.body .ant-table-tbody>tr:hover>td {
+    background-color: #f0f8ff;
+}
+
+.body .ant-tag {
+    font-weight: 500;
+    border: none;
+    padding: 4px 8px;
+}
+
+.body .ant-card-head {
+    background-color: #fafafa;
 }

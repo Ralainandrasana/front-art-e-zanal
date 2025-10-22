@@ -4,6 +4,7 @@ import Visiteur from "./pages/Visiteur";
 import SignUp from "./pages/SignUp";
 import AccueilAcheteur from "./pages/acheteur/AccueilAcheteur";
 import Panier from "./pages/acheteur/Panier";
+import CommandesEffectue from "./pages/acheteur/CommandesEffectue";
 import Publication from "./pages/acheteur/Publication";
 import Details from "./pages/acheteur/Details";
 import Payer from "./pages/acheteur/Payer";
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
     {
         path: "/Panier",
         element: <Panier />,
+    },
+    {
+        path: "/Commandes",
+        element: <CommandesEffectue />,
     },
     {
         path: "/Payer",
