@@ -41,6 +41,7 @@ const Publications = () => {
       const response = await apiProduit.get("/");
       setProduits(response.data);
     } catch (error) {
+      console.error(error);
       message.error("Erreur lors du chargement des produits 😢");
     }
   };
@@ -93,7 +94,7 @@ const Publications = () => {
 
       message.success("Produit ajouté avec succès ✅");
       fetchProduits();
-      setIsModalOpen(false);
+      setIsProduitModalOpen(false);
       form.resetFields();
     } catch (error) {
       console.error(error);
@@ -116,6 +117,7 @@ const Publications = () => {
           message.success("Produit supprimé ✅");
           fetchProduits();
         } catch (error) {
+          console.error(error);
           message.error("Erreur lors de la suppression ❌");
         }
       },
@@ -169,18 +171,22 @@ const Publications = () => {
     <div style={{ padding: 20 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
         <h2>🧱 Liste des publications</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setIsProduitModalOpen(true)}
+        >
           Ajouter un produit
         </Button>
       </div>
 
       <Table dataSource={produits} columns={columns} rowKey="id_produit" bordered pagination={{ pageSize: 5 }} />
 
-      {/* --- Modal d'ajout --- */}
+      {/* --- Modal d'ajout produit --- */}
       <Modal
         title="Ajouter un produit"
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
+        open={isProduitModalOpen}
+        onCancel={() => setIsProduitModalOpen(false)}
         onOk={() => form.submit()}
         okText="Ajouter"
         cancelText="Annuler"
@@ -193,7 +199,9 @@ const Publications = () => {
                 label="Image"
                 name="image"
                 valuePropName="fileList"
-                getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}
+                getValueFromEvent={(e) =>
+                  Array.isArray(e) ? e : e && e.fileList
+                }
               >
                 <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
                   <div>
@@ -252,6 +260,50 @@ const Publications = () => {
               </Form.Item>
             </Col>
           </Row>
+        </Form>
+      </Modal>
+
+      {/* --- Modal ajout promotion --- */}
+      <Modal
+        title={`Ajouter une promotion pour ${selectedProduit?.nomProduit}`}
+        open={isPromoModalOpen}
+        onCancel={handleCancelPromotion}
+        footer={null}
+      >
+        <Form layout="vertical" onFinish={handleCreatePromotion}>
+          <Form.Item
+            label="Prix avant"
+            name="prixAvant"
+            rules={[{ required: true }]}
+          >
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item
+            label="Prix après"
+            name="prixApres"
+            rules={[{ required: true }]}
+          >
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item
+            label="Date début"
+            name="date_debut"
+            rules={[{ required: true }]}
+          >
+            <DatePicker />
+          </Form.Item>
+          <Form.Item
+            label="Date fin"
+            name="date_fin"
+            rules={[{ required: true }]}
+          >
+            <DatePicker />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Créer
+            </Button>
+          </Form.Item>
         </Form>
       </Modal>
     </div>
