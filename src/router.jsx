@@ -25,7 +25,7 @@ const router = createBrowserRouter([
   { path: "/Acheteur", element: <AccueilAcheteur /> },
   { path: "/Panier", element: <Panier /> },
   { path: "/Payer", element: <Payer /> },
-  { path: "/Details", element: <Details /> },
+  { path: "/Details/:id_produit", element: <Details /> },
   { path: "/Publication", element: <Publication /> },
   {
     path: "/Vendeur",

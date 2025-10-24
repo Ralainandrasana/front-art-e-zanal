@@ -23,9 +23,9 @@ function SignIn() {
     try {
       // 🔹 Login avec JWT
       const response = await apiUtilisateur.post("/token/", {
-  email: formData.email,
-  password: formData.motDePasse,
-});
+      email: formData.email,
+      password: formData.motDePasse,
+    });
 
       const accessToken = response.data.access;
       const refreshToken = response.data.refresh;

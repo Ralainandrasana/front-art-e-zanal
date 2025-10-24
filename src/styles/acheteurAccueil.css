@@ -15,6 +15,50 @@
     --red: #C10303;
     --orangeBorder: #C2AA56;
 }
+.notif-btn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.notif-btn img {
+  width: 25px;
+  height: 25px;
+}
+
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: red;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+}
+
+.notif-dropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 250px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 100;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notif-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
 
 .acheteur .header1 h2 {
     display: flex;

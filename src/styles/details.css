@@ -247,31 +247,124 @@
     align-items: center;
 }
 
-.payer .wrapPayer {
-    background: #EFD5D5;
-    padding: 10px;
-    border-radius: 10px;
-    /* font-weight: bold; */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.payer .wrapPayer p {
-    margin: 10px 0 5px 0;
-}
-
-.payer .wrapPayer button {
-    background: var(--green);
-    color: white;
-    border: none;
-    padding: 5px;
-    width: 50%;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-top: 15px;
-}
 
 .bodyDetails .top {
     display: flex;
+    margin-bottom: 50px;
+}
+
+.bodyDetails .top .right .text .description {
+    border-bottom: solid 1px black;
+    padding-bottom: 5px;
+}
+
+.bodyDetails .top .right .btn1 .action {
+    background: var(--blue-footer);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100px;
+    border-radius: 10px;
+    height: 30px;
+}
+
+.bodyDetails .top .right .btn1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 230px;
+    margin: 20px 0 20px 0;
+}
+
+.bodyDetails .top .right .btn2 button {
+    background: var(--blue-footer);
+    color: white;
+    border-radius: 10px;
+    padding: 10px;
+    border: none;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.bodyDetails .top .right .btn2 img {
+    margin-right: 10px;
+}
+
+.bodyDetails .top .right .btn1 .auPanier {
+    background: var(--blue-footer);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 120px;
+    border-radius: 10px;
+    height: 30px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.bodyDetails .top .right .btn1 .action button {
+    background: var(--blue-footer);
+    border: none;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    color: white;
+}
+
+.bodyDetails .top .right .btn1 .action p {
+    background: var(--blue-footer);
+    border: none;
+    width: 30px;
+    height: 30px;
+    color: white;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bodyDetails .bottom .desc {
+    background: var(--heading);
+    border: none;
+    color: white;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 7px;
+    border-radius: 10px;
+}
+
+.bodyDetails .bottom .msg {
+    display: flex;
+    justify-content: left;
+    align-items: end;
+}
+
+.bodyDetails .bottom .msg input {
+    background: transparent;
+    border: none;
+    border-bottom: solid 2px var(--gray-content);
+    padding: 10px;
+    width: 500px;
+}
+
+.bodyDetails .bottom .msg .send {
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    margin-left: 100px;
+}
+
+.bodyDetails .bottom .cara {
+    margin: 20px 0 20px 0;
+}
+
+.bodyDetails .bottom .avis {
+    margin: 50px 0 20px 0;
 }
