@@ -1,10 +1,20 @@
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import "../styles/signUp.css";
-import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import { useState } from "react";
 import { apiUtilisateur } from "../api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+// Material UI imports
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Stack,
+  Paper,
+} from "@mui/material";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -23,9 +33,9 @@ function SignIn() {
     try {
       // 🔹 Login avec JWT
       const response = await apiUtilisateur.post("/token/", {
-      email: formData.email,
-      password: formData.motDePasse,
-    });
+        email: formData.email,
+        password: formData.motDePasse,
+      });
 
       const accessToken = response.data.access;
       const refreshToken = response.data.refresh;
@@ -43,10 +53,12 @@ function SignIn() {
       const role = response.data.role;
       if (role === "client") navigate("/Acheteur");
       else if (role === "vendeur") navigate("/Vendeur");
-      else navigate("/Admin");
-
+      else navigate("/administrateur");
     } catch (error) {
-      console.error("Erreur de connexion :", error.response?.data || error.message);
+      console.error(
+        "Erreur de connexion :",
+        error.response?.data || error.message
+      );
       toast.error("Email ou mot de passe incorrect ❌");
     }
   };
@@ -54,56 +66,97 @@ function SignIn() {
   return (
     <>
       <Header />
-      <div className="contentSignUp">
-        <div className="headerSignUp">
-          <div className="logo">
-            <img src="logos/logoPlateforme.png" alt="" />
-            <h2>art-e-zanal</h2>
-          </div>
-        </div>
-        <div className="body">
-          <div className="left">
-            <img src="images/pattern-c.png" alt="" />
-          </div>
-          <div className="right">
-            <div className="titleSignUp">
-              <h1>Connexion</h1>
-              <h1>art-e-zanal</h1>
-            </div>
-            <form className="form" onSubmit={handleSubmit}>
-              <input
-                type="email"
-                name="email"
-                placeholder="votrenom@gmail.com"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />{" "}
-              <br />
-              <input
-                type="password"
-                name="motDePasse"
-                placeholder="mot de passe"
-                value={formData.motDePasse}
-                onChange={handleChange}
-                required
-              />
-              <div className="btnSubmit">
-                <button type="submit">Se connecter</button>
-              </div>
-            </form>
+      <Box className="contentSignUp" sx={{ p: 2 }}>
+        <Box className="headerSignUp" sx={{ mb: 4 }}>
+          <Box className="logo" sx={{ display: "flex", alignItems: "center" }}>
+            <img
+              src="logos/logoPlateforme.png"
+              alt=""
+              style={{ marginRight: 8 }}
+            />
+            <Typography variant="h4">art-e-zanal</Typography>
+          </Box>
+        </Box>
 
-            <div className="bottom">
-              <p>Mot de passe oublié ? Pas encore de compte ? S’inscrire</p>
-            </div>
-          </div>
-        </div>
-        <div className="footerSignUp">
-          <p>
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          spacing={4}
+          justifyContent="center"
+          alignItems="center"
+          className="body"
+        >
+          {/* Partie gauche: image */}
+          <Box className="left" sx={{ flex: 1, textAlign: "center" }}>
+            <img
+              src="images/pattern-c.png"
+              alt=""
+              style={{ maxWidth: "100%" }}
+            />
+          </Box>
+
+          {/* Partie droite: formulaire */}
+          <Box
+            className="right"
+            sx={{ flex: 1, display: "flex", justifyContent: "center" }}
+          >
+            <Paper sx={{ p: 4, width: "100%", maxWidth: 400 }}>
+              <Box className="titleSignUp" sx={{ mb: 3 }}>
+                <Typography variant="h5">Connexion</Typography>
+                <Typography variant="h6">art-e-zanal</Typography>
+              </Box>
+
+              <form onSubmit={handleSubmit}>
+                <Stack spacing={2} alignItems="center">
+                  <TextField
+                    label="Email"
+                    type="email"
+                    name="email"
+                    placeholder="votrenom@gmail.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    fullWidth
+                    sx={{ maxWidth: 300 }}
+                  />
+                  <TextField
+                    label="Mot de passe"
+                    type="password"
+                    name="motDePasse"
+                    placeholder="mot de passe"
+                    value={formData.motDePasse}
+                    onChange={handleChange}
+                    required
+                    fullWidth
+                    sx={{ maxWidth: 300 }}
+                  />
+
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    sx={{ maxWidth: 300 }}
+                  >
+                    Se connecter
+                  </Button>
+                </Stack>
+              </form>
+
+              <Box className="bottom" sx={{ mt: 2, textAlign: "center" }}>
+                <Typography variant="body2">
+                  Mot de passe oublié ? Pas encore de compte ? 
+                  <Link to="/signUp">S’inscrire</Link>
+                </Typography>
+              </Box>
+            </Paper>
+          </Box>
+        </Stack>
+
+        <Box className="footerSignUp" sx={{ mt: 4, textAlign: "center" }}>
+          <Typography variant="body2">
             La qualité artisanale qui fait <br /> toute la différence !
-          </p>
-        </div>
-      </div>
+          </Typography>
+        </Box>
+      </Box>
     </>
   );
 }

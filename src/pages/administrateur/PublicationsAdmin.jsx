@@ -1,182 +1,225 @@
-import React, { useState } from "react";
-import { Card, Row, Col, Typography, Button, Modal, message, Tag, Pagination } from "antd";
+// PublicationsAdmin.jsx
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  Card,
+  Row,
+  Col,
+  Typography,
+  Button,
+  Modal,
+  message,
+  Tag,
+  Pagination,
+} from "antd";
+import Swal from "sweetalert2";
 
 const { Title, Paragraph, Text } = Typography;
 
 const PublicationsAdmin = () => {
-    // --- Exemple de publications à valider ---
-    const [publications, setPublications] = useState([
-        {
-            id: 1,
-            image: "/produits/panier_osier.jpg",
-            nomProduit: "Panier artisanal en osier",
-            reference: "ART-001",
-            marque: "ArtMalagasy",
-            vendeur: "Rabe Jean",
-            prix: "25 000 Ar",
-            statut: "En attente",
-        },
-        {
-            id: 2,
-            image: "/produits/sac_cuir.jpg",
-            nomProduit: "Sac artisanal en cuir",
-            reference: "ART-002",
-            marque: "Mad'Art",
-            vendeur: "Rakoto Fara",
-            prix: "80 000 Ar",
-            statut: "En attente",
-        },
-        {
-            id: 3,
-            image: "/produits/tapis_raphia.jpg",
-            nomProduit: "Tapis traditionnel en raphia",
-            reference: "ART-003",
-            marque: "SoaDesign",
-            vendeur: "Andry Michel",
-            prix: "60 000 Ar",
-            statut: "En attente",
-        },
-        {
-            id: 4,
-            image: "/produits/tapis_raphia.jpg",
-            nomProduit: "Tapis traditionnel en raphia",
-            reference: "ART-004",
-            marque: "SoaDesign",
-            vendeur: "Andry Michel",
-            prix: "60 000 Ar",
-            statut: "En attente",
-        },
-        // Ajoute d'autres publications si besoin pour tester la pagination
-    ]);
+  const [publications, setPublications] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
+  const [modal, contextHolder] = Modal.useModal();
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 6; // nombre de publications par page
+  // 🔹 Charger les publications
+  useEffect(() => {
+    const fetchPublications = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          message.error("Vous devez être connecté !");
+          return;
+        }
 
-    // Publications à afficher sur la page actuelle
-    const currentPublications = publications.slice(
-        (currentPage - 1) * pageSize,
-        currentPage * pageSize
-    );
-
-    // --- Fonction de validation ---
-    const handleValidate = (id) => {
-        setPublications((prev) =>
-            prev.map((pub) =>
-                pub.id === id ? { ...pub, statut: "Validée" } : pub
-            )
-        );
-        message.success("✅ Publication validée avec succès !");
-    };
-
-    // --- Fonction de refus ---
-    const handleDecline = (id) => {
-        Modal.confirm({
-            title: "Refuser cette publication ?",
-            content:
-                "Êtes-vous sûr de vouloir refuser cette publication ? Le vendeur sera notifié.",
-            okText: "Oui, refuser",
-            cancelText: "Annuler",
-            okType: "danger",
-            onOk: () => {
-                setPublications((prev) =>
-                    prev.map((pub) =>
-                        pub.id === id ? { ...pub, statut: "Refusée" } : pub
-                    )
-                );
-                message.error("⚠️ Publication refusée !");
-            },
+        const res = await axios.get("http://127.0.0.1:8000/api/produit/", {
+          headers: { Authorization: `Bearer ${token}` },
         });
+        setPublications(res.data);
+      } catch (err) {
+        console.error(err);
+        message.error("Erreur lors du chargement des publications !");
+      }
     };
+    fetchPublications();
+  }, []);
 
-    return (
-        <div style={{ padding: 24 }}>
-            <Title level={2}>Publications des vendeurs</Title>
-            <Paragraph type="secondary">
-                Validez ou refusez les publications avant leur mise en ligne afin
-                de garantir la qualité des produits sur la plateforme.
-            </Paragraph>
+  const currentPublications = publications.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
-            <Row gutter={[16, 16]} style={{ marginTop: 20 }}>
-                {currentPublications.map((pub) => (
-                    <Col xs={24} sm={12} md={8} key={pub.id}>
-                        <Card
-                            hoverable
-                            style={{
-                                borderRadius: 10,
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                            }}
-                            cover={
-                                <img
-                                    alt={pub.nomProduit}
-                                    src={pub.image}
-                                    style={{
-                                        width: "100%",
-                                        height: 180,
-                                        objectFit: "cover",
-                                        borderTopLeftRadius: 10,
-                                        borderTopRightRadius: 10,
-                                    }}
-                                />
-                            }
-                        >
-                            <div>
-                                <Title level={5}>{pub.nomProduit}</Title>
-                                <Text type="secondary">Référence : {pub.reference}</Text>
-                                <br />
-                                <Text>Marque : {pub.marque}</Text>
-                                <br />
-                                <Text>Vendeur : {pub.vendeur}</Text>
-                                <br />
-                                <Text strong>Prix : {pub.prix}</Text>
-                                <br />
-                                <div style={{ marginTop: 8 }}>
-                                    {pub.statut === "Validée" ? (
-                                        <Tag color="green">Validée</Tag>
-                                    ) : pub.statut === "Refusée" ? (
-                                        <Tag color="red">Refusée</Tag>
-                                    ) : (
-                                        <Tag color="orange">En attente</Tag>
-                                    )}
-                                </div>
-                            </div>
+  // --- Valider une publication ---
+  const handleValidate = async (id) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      message.error("Vous devez être connecté pour valider cette publication");
+      return;
+    }
 
-                            <div
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    marginTop: 16,
-                                }}
-                            >
-                                <Button
-                                    type="primary"
-                                    onClick={() => handleValidate(pub.id)}
-                                    disabled={pub.statut !== "En attente"}
-                                >
-                                    Valider
-                                </Button>
-                                <Button
-                                    danger
-                                    onClick={() => handleDecline(pub.id)}
-                                    disabled={pub.statut !== "En attente"}
-                                >
-                                    Refuser
-                                </Button>
-                            </div>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
+    try {
+      await axios.patch(
+        `http://127.0.0.1:8000/api/produit/${id}/`,
+        { statut: "validee" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-            {/* Pagination */}
-            <Pagination
-                current={currentPage}
-                pageSize={pageSize}
-                total={publications.length}
-                onChange={page => setCurrentPage(page)}
-                style={{ marginTop: 20, textAlign: "center" }}
-            />
-        </div>
-    );
+      // 🔹 Mise à jour locale seulement
+      setPublications((prev) =>
+        prev.map((pub) =>
+          pub.id_produit === id ? { ...pub, statut: "validee" } : pub
+        )
+      );
+
+      // 🔹 Boîte de dialogue SweetAlert
+      Swal.fire({
+        icon: "success",
+        title: "Publication validée !",
+        text: "La publication a été validée avec succès.",
+        confirmButtonColor: "#52c41a",
+      });
+    } catch (error) {
+      console.error(error.response || error);
+      Swal.fire({
+        icon: "error",
+        title: "Erreur",
+        text: "Impossible de valider la publication.",
+        confirmButtonColor: "#ff4d4f",
+      });
+    }
+  };
+
+  // --- Refuser une publication ---
+  const handleDecline = (id) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire({
+        icon: "error",
+        title: "Erreur",
+        text: "Vous devez être connecté !",
+        confirmButtonColor: "#ff4d4f",
+      });
+      return;
+    }
+
+    // 🔹 Boîte de confirmation SweetAlert
+    Swal.fire({
+      title: "Refuser cette publication ?",
+      text: "Êtes-vous sûr de vouloir refuser cette publication ?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Oui, refuser",
+      cancelButtonText: "Annuler",
+      confirmButtonColor: "#ff4d4f",
+      cancelButtonColor: "#1890ff",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.patch(
+            `http://127.0.0.1:8000/api/produit/${id}/`,
+            { statut: "refusee" },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          // 🔹 Mise à jour locale seulement
+          setPublications((prev) =>
+            prev.map((pub) =>
+              pub.id_produit === id ? { ...pub, statut: "refusee" } : pub
+            )
+          );
+
+          Swal.fire({
+            icon: "success",
+            title: "Publication refusée",
+            text: "La publication a été refusée avec succès.",
+            confirmButtonColor: "#ff4d4f",
+          });
+        } catch (error) {
+          console.error(error.response || error);
+          Swal.fire({
+            icon: "error",
+            title: "Erreur",
+            text: "Impossible de refuser la publication.",
+            confirmButtonColor: "#ff4d4f",
+          });
+        }
+      }
+    });
+  };
+
+  return (
+    <div style={{ padding: 24 }}>
+      {contextHolder}
+
+      <Title level={2}>Publications des vendeurs</Title>
+      <Paragraph type="secondary">
+        Validez ou refusez les publications avant leur mise en ligne.
+      </Paragraph>
+
+      <Row gutter={[16, 16]} style={{ marginTop: 20 }}>
+        {currentPublications.map((pub) => (
+          <Col xs={24} sm={12} md={8} key={pub.id_produit}>
+            <Card
+              hoverable
+              cover={
+                <img
+                  alt={pub.nomProduit}
+                  src={pub.image}
+                  style={{ width: "100%", height: 180, objectFit: "cover" }}
+                />
+              }
+            >
+              <Title level={5}>{pub.nomProduit}</Title>
+              <Text type="secondary">Réf : {pub.id_produit}</Text>
+              <br />
+              <Text>Prix : {pub.prixUnitaire} Ar</Text>
+
+              <div style={{ marginTop: 8 }}>
+                {pub.statut === "validee" ? (
+                  <Tag color="green">Validée</Tag>
+                ) : pub.statut === "refusee" ? (
+                  <Tag color="red">Refusée</Tag>
+                ) : (
+                  <Tag color="orange">En attente</Tag>
+                )}
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginTop: 16,
+                }}
+              >
+                <Button
+                  type="primary"
+                  onClick={() => handleValidate(pub.id_produit)}
+                  disabled={pub.statut !== "en_attente"}
+                >
+                  Valider
+                </Button>
+                <Button
+                  danger
+                  onClick={() => handleDecline(pub.id_produit)}
+                  disabled={pub.statut !== "en_attente"}
+                >
+                  Refuser
+                </Button>
+              </div>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+
+      <Pagination
+        current={currentPage}
+        pageSize={pageSize}
+        total={publications.length}
+        onChange={setCurrentPage}
+        style={{ marginTop: 20, textAlign: "center" }}
+      />
+    </div>
+  );
 };
 
 export default PublicationsAdmin;

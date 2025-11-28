@@ -5,6 +5,15 @@ import axios from "axios";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { StarOutlined } from "@ant-design/icons";
+import Swal from "sweetalert2";
+
+// 🔹 Import Material UI
+import { Button, IconButton, Typography, TextField, Box } from "@mui/material";
+
+import PhoneIcon from "@mui/icons-material/Phone";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import EditIcon from "@mui/icons-material/Edit";
 
 function Details() {
   const { id_produit } = useParams();
@@ -12,39 +21,23 @@ function Details() {
   const [produit, setProduit] = useState(null);
   const [quantite, setQuantite] = useState(0);
 
-  // ✅ Aller vers la page panier
-  const goToPanier = () => {
-    navigate("/Panier");
-  };
+  const goToPanier = () => navigate("/Panier");
 
-  // ✅ Diminuer quantité
   const handleDecrease = () => {
-    if (quantite > 0) {
-      setQuantite(quantite - 1);
-    }
+    if (quantite > 0) setQuantite(quantite - 1);
   };
 
-  // ✅ Augmenter quantité
-  const handleIncrease = () => {
-    setQuantite(quantite + 1);
-  };
+  const handleIncrease = () => setQuantite(quantite + 1);
 
-  // ✅ Ajouter au panier (localStorage uniquement)
   const handleAddToCart = () => {
     if (quantite > 0 && produit) {
-      // Récupérer le panier existant dans le localStorage
       const panier = JSON.parse(localStorage.getItem("panier")) || [];
-
-      // Vérifier si le produit est déjà dans le panier
       const existingIndex = panier.findIndex(
         (item) => item.id_produit === produit.id_produit
       );
-
       if (existingIndex !== -1) {
-        // Si le produit existe déjà, on met à jour la quantité
         panier[existingIndex].quantite += quantite;
       } else {
-        // Sinon, on ajoute un nouveau produit
         panier.push({
           id_produit: produit.id_produit,
           nomProduit: produit.nomProduit,
@@ -54,17 +47,30 @@ function Details() {
           quantite: quantite,
         });
       }
-
-      // Sauvegarder le panier mis à jour
       localStorage.setItem("panier", JSON.stringify(panier));
-      alert("✅ Produit ajouté au panier !");
-      setQuantite(0); // Réinitialiser la quantité
-    } else {
-      alert("Veuillez sélectionner une quantité avant d’ajouter au panier.");
-    }
+      
+      setQuantite(0);
+      // ✅ SweetAlert pour confirmation ajout panier
+    Swal.fire({
+      icon: "success",
+      title: "Produit ajouté 🛒",
+      text: `${produit.nomProduit} a été ajouté au panier !`,
+      confirmButtonColor: "#28a745",
+      timer: 2500,
+      timerProgressBar: true,
+    });
+
+  } else {
+    // ⚠️ SweetAlert pour avertissement
+    Swal.fire({
+      icon: "warning",
+      title: "Quantité invalide ⚠️",
+      text: "Veuillez sélectionner une quantité avant d’ajouter au panier.",
+      confirmButtonColor: "#3085d6",
+    });
+};
   };
 
-  // ✅ Charger les détails du produit depuis le backend
   useEffect(() => {
     axios
       .get(`http://127.0.0.1:8000/api/produit/${id_produit}`)
@@ -85,27 +91,30 @@ function Details() {
   return (
     <>
       <Header />
-      <div className="acheteur">
-        <div className="header1">
-          <h2 className="logo">
+      <Box className="acheteur">
+        <Box className="header1">
+          <Typography variant="h5" className="logo">
             <img src="logos/logoPlateforme.png" alt="" /> art-e-zanal
-          </h2>
-          <div className="search">
+          </Typography>
+
+          <Box className="search">
             <img src="icons/search.png" alt="" />
-            <input
-              type="text"
+            <TextField
+              variant="outlined"
+              size="small"
               placeholder="recherche des matériaux: brique, sable, moellon, gravillon..."
             />
-          </div>
-          <div className="compte-panier">
-            <button>
-              <img src="icons/user.png" alt="" />
-              <p>Mon compte</p>
-            </button>
-          </div>
-        </div>
+          </Box>
 
-        <div className="menu">
+          {/* <Box className="compte-panier">
+            <Button>
+              <img src="icons/user.png" alt="" />
+              <Typography>Mon compte</Typography>
+            </Button>
+          </Box>*/}
+        </Box>
+
+        <Box className="menu">
           <ul>
             <li>
               <a href="#" className="activated">
@@ -119,59 +128,63 @@ function Details() {
               <a href="#">Contact</a>
             </li>
           </ul>
-        </div>
+        </Box>
 
-        <div className="content2">
-          <div className="titlePanier">
-            <h3 className="left">{produit.nomProduit}</h3>
-          </div>
-          <div className="back" onClick={() => navigate(-1)}>
+        <Box className="content2">
+          <Typography variant="h6" className="titlePanier">
+            {produit.nomProduit}
+          </Typography>
+          <Box className="back" onClick={() => navigate(-1)}>
             <img src="icons/chevron-left.png" alt="" />
-          </div>
+          </Box>
 
-          <div className="bodyDetails">
-            <div className="top">
+          <Box className="bodyDetails">
+            <Box className="top">
               <img
-                src={`http://127.0.0.1:8000${produit.image}`}
-                className="photo"
-                onError={(e) => (e.target.src = "/images/default.png")}
+                src={produit.image || "images/default.png"}
+                alt={produit.nomProduit}
+                className="product-image"
+                onError={(e) => (e.target.src = "images/default.png")}
               />
 
-              <div className="right">
-                <div className="text">
-                  <h1>
+              <Box className="right">
+                <Box className="text">
+                  <Typography variant="h4">
                     <strong>{produit.nomProduit}</strong>
-                  </h1>
-                  <p className="description">
+                  </Typography>
+                  <Typography className="description">
                     Référence : {produit.id_produit}
-                  </p>
+                  </Typography>
 
-                  <div className="dddd">
-                    <div className="stars" style={{ color: "#73AB05" }}>
+                  <Box className="dddd">
+                    <Box className="stars" sx={{ color: "#73AB05" }}>
                       <StarOutlined />
                       <StarOutlined />
                       <StarOutlined />
                       <StarOutlined />
                       <StarOutlined />
-                    </div>
-                    <p>Donnez votre avis</p>
-                  </div>
+                    </Box>
+                    <Typography>Donnez votre avis</Typography>
+                  </Box>
 
-                  <p>Description : {produit.descriptionProduit || "N/A"}</p>
-                  <p>
+                  <Typography>
+                    Description : {produit.descriptionProduit || "N/A"}
+                  </Typography>
+                  <Typography>
                     <strong>Prix unitaire : {produit.prixUnitaire} Ar</strong>
-                  </p>
-                </div>
+                  </Typography>
+                </Box>
 
                 <div className="btn1">
+                  {" "}
                   <div className="action">
                     <button onClick={handleDecrease} disabled={quantite === 0}>
+                      {" "}
                       -
-                    </button>
+                    </button>{" "}
                     <p>{quantite}</p>
                     <button onClick={handleIncrease}>+</button>
                   </div>
-
                   {/* Bouton AJOUTER AU PANIER */}
                   <button
                     className="auPanier"
@@ -180,61 +193,81 @@ function Details() {
                   >
                     Ajouter
                   </button>
-
                   {/* Bouton ALLER AU PANIER */}
                   <button className="auPanier" onClick={goToPanier}>
                     <img src="/icons/shopping-cart.png" alt="Panier" />
                   </button>
                 </div>
 
-                <div className="btn2">
-                  <button>
-                    <img src="icons/phone-outgoing.png" alt="" />
-                    <span>Besoin d’aide</span>
-                    <img src="icons/move-right.png" alt="" />
-                  </button>
-                  <button>
-                    <img src="icons/wallet-cards.png" alt="" />
-                    <span>Paiement sécurisé</span>
-                    <img src="icons/move-right.png" alt="" />
-                  </button>
-                  <button>
-                    <img src="icons/car.png" alt="" />
-                    <span>Livraison standard</span>
-                    <img src="icons/move-right.png" alt="" />
-                  </button>
-                </div>
-              </div>
-            </div>
+                <Box className="btn2" sx={{ mt: 2 }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<PhoneIcon />}
+                    endIcon={<img src="icons/move-right.png" alt="" />}
+                  >
+                    Besoin d’aide
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<AccountBalanceWalletIcon />}
+                    endIcon={<img src="icons/move-right.png" alt="" />}
+                  >
+                    Paiement sécurisé
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<LocalShippingIcon />}
+                    endIcon={<img src="icons/move-right.png" alt="" />}
+                  >
+                    Livraison standard
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
 
-            <div className="bottom">
-              <button className="desc">
-                <img src="icons/square-pen.png" alt="" />
+            <Box className="bottom">
+              <Button
+                variant="outlined"
+                startIcon={<EditIcon />}
+                className="desc"
+              >
                 Description
-              </button>
+              </Button>
 
-              <div className="cara">
+              <Box className="cara">
                 <strong>Caractéristiques produits:</strong>
+              </Box>
+
+              <div className="product-detail-box">
+                <p>
+                  <strong>🌿 Nature :</strong>{" "}
+                  <span>{produit.descriptionProduit || "N/A"}</span>
+                </p>
+                <p>
+                  <strong>📦 Quantité disponible :</strong>{" "}
+                  <span>{produit.quantite || "N/A"}</span>
+                </p>
               </div>
 
-              <p>-Nature : {produit.descriptionProduit || "N/A"}</p>
-              <p>-Quantité disponible : {produit.quantite || "N/A"}</p>
-
-              <div className="avis">
+              <Box className="avis">
                 <strong>Donner votre Avis</strong>
-              </div>
+              </Box>
 
-              <div className="msg">
-                <input type="text" placeholder="Écrire vos messages" />
-                <button className="send">
+              <Box className="msg">
+                <TextField
+                  variant="outlined"
+                  size="small"
+                  placeholder="Écrire vos messages"
+                />
+                <Button className="send">
                   <img src="icons/message-square-dot.png" alt="" />
                   Envoyer
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
       <Footer />
     </>
   );

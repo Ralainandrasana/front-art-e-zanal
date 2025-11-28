@@ -4,15 +4,17 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import "../../styles/panier.css";
 import axios from "axios";
+import Swal from "sweetalert2";
+
 
 function Panier() {
   const navigate = useNavigate();
   const [panier, setPanier] = useState([]);
+  const [commandeCree, setCommandeCree] = useState(null);
 
   // Charger le panier depuis localStorage
   useEffect(() => {
     const savedPanier = JSON.parse(localStorage.getItem("panier")) || [];
-    // S'assurer que chaque produit a une quantité
     const panierAvecQuantite = savedPanier.map((p) => ({
       ...p,
       quantite: p.quantite || 1,
@@ -21,7 +23,6 @@ function Panier() {
     setPanier(panierAvecQuantite);
   }, []);
 
-  // Incrémenter la quantité
   const handleIncrement = (id) => {
     const newPanier = panier.map((p) =>
       p.id_produit === id ? { ...p, quantite: p.quantite + 1 } : p
@@ -30,7 +31,6 @@ function Panier() {
     localStorage.setItem("panier", JSON.stringify(newPanier));
   };
 
-  // Décrémenter la quantité
   const handleDecrement = (id) => {
     const newPanier = panier.map((p) =>
       p.id_produit === id
@@ -41,73 +41,81 @@ function Panier() {
     localStorage.setItem("panier", JSON.stringify(newPanier));
   };
 
-  //   // Calcul du total
-  //   const total = panier.reduce(
-  //   (acc, item) => acc + item.prixUnitaire * item.quantite,
-  //   0
-  // );
-
-  // ✅ Calcule correctement le total
-  const total = panier.reduce(
-    (acc, item) => acc + item.prixUnitaire * item.quantite,
-    0
-  );
-
-  // Supprimer un produit
   const handleRemove = (id) => {
     const newPanier = panier.filter((p) => p.id_produit !== id);
     setPanier(newPanier);
     localStorage.setItem("panier", JSON.stringify(newPanier));
   };
 
-  const handleGoPayer = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Vous devez être connecté pour commander !");
-        return;
-      }
+  // Calcul du total
+  const total = panier.reduce(
+    (acc, item) => acc + item.prixUnitaire * item.quantite,
+    0
+  );
 
-      if (panier.length === 0) {
-        alert("Votre panier est vide !");
-        return;
-      }
-
-      const payload = {
-        panier: panier.map((p) => ({
-          id_produit: p.id_produit,
-          quantite: p.quantite,
-          prixUnitaire: p.prixUnitaire,
-        })),
-      };
-
-      const nouvelleCommande = response.data;
-
-// rediriger vers la page Paiement en passant la commande
-navigate("/paiement", { state: { commande: nouvelleCommande } });
-
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/commande/",
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log("✅ Commande créée :", response.data);
-      alert("Votre commande a été enregistrée !");
-      localStorage.removeItem("panier");
-      navigate("/mes-commandes");
-    } catch (error) {
-      console.error(
-        "Erreur lors de la création de la commande :",
-        error.response?.data || error.message
-      );
-      alert("Erreur lors de la commande !");
+  // ✅ Créer la commande sans naviguer (avec SweetAlert2)
+const handleGoPayer = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire({
+        icon: "warning",
+        title: "Connexion requise ⚠️",
+        text: "Vous devez être connecté pour commander.",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "Se connecter",
+      });
+      return;
     }
-  };
+
+    
+
+    const payload = {
+      panier: panier.map((p) => ({
+        id_produit: p.id_produit,
+        quantite: p.quantite,
+        prixUnitaire: p.prixUnitaire,
+      })),
+      total,
+    };
+
+    const response = await axios.post(
+      "http://127.0.0.1:8000/api/commande/",
+      payload,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    const nouvelleCommande = response.data;
+    setCommandeCree(nouvelleCommande);
+
+    // ✅ Message de succès
+    Swal.fire({
+      icon: "success",
+      title: "Commande créée 🎉",
+      text: "Votre commande a été créée avec succès !",
+      confirmButtonColor: "#28a745",
+      confirmButtonText: "OK",
+      timer: 3000,
+      timerProgressBar: true,
+    });
+  } catch (error) {
+    console.error(
+      "Erreur lors de la création de la commande :",
+      error.response?.data || error.message
+    );
+
+    // ❌ Message d'erreur
+    Swal.fire({
+      icon: "error",
+      title: "Erreur ❌",
+      text: "Une erreur est survenue lors de la création de votre commande.",
+      confirmButtonColor: "#d33",
+    });
+  }
+};
+
 
   return (
     <>
@@ -134,24 +142,21 @@ navigate("/paiement", { state: { commande: nouvelleCommande } });
                   <div className="card" key={produit.id_produit}>
                     <div className="left">
                       <img
-                        src={`http://127.0.0.1:8000${produit.image}`}
+                        src={
+                          produit.image ? produit.image : "images/default.png"
+                        }
+                        className="product-img"
                         alt={produit.nomProduit}
-                        onError={(e) => (e.target.src = "/images/default.png")}
+                        onError={(e) => (e.target.src = "images/default.png")}
                       />
                     </div>
-
                     <div className="center">
                       <h2>{produit.nomProduit}</h2>
-                      <p>
-                        Référence : {produit.descriptionProduit} <br />
-                      </p>
+                      <p>Référence : {produit.descriptionProduit}</p>
                     </div>
-
                     <div className="right">
                       <div className="action">
-                        <button
-                          onClick={() => handleRemove(produit.id_produit)}
-                        >
+                        <button onClick={() => handleRemove(produit.id_produit)}>
                           <img src="icons/trash-2.png" alt="Supprimer" />
                         </button>
                         <button
@@ -161,18 +166,13 @@ navigate("/paiement", { state: { commande: nouvelleCommande } });
                           -
                         </button>
                         <p>{produit.quantite}</p>
-                        <button
-                          onClick={() => handleIncrement(produit.id_produit)}
-                        >
+                        <button onClick={() => handleIncrement(produit.id_produit)}>
                           +
                         </button>
                       </div>
-                      <p>{produit.quantiteChoisie}</p>
                       <p>
                         <strong>
-                          <strong>
-                            Prix : {produit.prixUnitaire * produit.quantite} Ar
-                          </strong>
+                          Prix : {produit.prixUnitaire * produit.quantite} Ar
                         </strong>
                       </p>
                     </div>
@@ -190,10 +190,11 @@ navigate("/paiement", { state: { commande: nouvelleCommande } });
                   {panier.length > 1 ? "s" : ""})
                 </strong>
                 <p>
-                  <strong>Prix Total :</strong> <span>{total} Ar</span>
+                  <strong>Prix Total :</strong>{" "}
+                  <span>{total.toLocaleString()} Ar</span>
                 </p>
                 <button onClick={handleGoPayer} disabled={panier.length === 0}>
-                  Commander
+                  Valider
                 </button>
               </div>
             </div>

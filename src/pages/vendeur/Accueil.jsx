@@ -1,66 +1,165 @@
-import React from 'react';
-import { Card, Row, Col, Statistic, Typography } from 'antd';
-import { BookOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { Card, Row, Col, Statistic, Typography, message } from 'antd';
+import { CheckCircleOutlined, CloseCircleOutlined, ShoppingCartOutlined, StopOutlined } from '@ant-design/icons';
+import axios from 'axios';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const { Title, Paragraph } = Typography;
 
+const COLORS = ['#52c41a', '#ff4d4f', '#1890ff', '#faad14'];
+
 const Accueil = () => {
-    return (
-        <div>
-            <Title level={2}>Bienvenue dans votre bibliothèque 📚</Title>
-            <Paragraph type="secondary">
-                Gérez facilement vos livres, vos utilisateurs et vos emprunts à partir de ce tableau de bord.
-            </Paragraph>
+  const [stats, setStats] = useState({
+    produitsValides: 0,
+    produitsRefuses: 0,
+    commandesValidees: 0,
+    commandesRefusees: 0,
+  });
 
-            {/* --- Statistiques principales --- */}
-            <Row gutter={[16, 16]} style={{ marginTop: 20 }}>
-                <Col xs={24} sm={12} md={8}>
-                    <Card bordered={false} style={{ textAlign: 'center', borderRadius: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-                        <Statistic
-                            title="Livres disponibles"
-                            value={128}
-                            prefix={<BookOutlined style={{ color: '#1677ff' }} />}
-                        />
-                    </Card>
-                </Col>
+  const [loading, setLoading] = useState(true);
 
-                <Col xs={24} sm={12} md={8}>
-                    <Card bordered={false} style={{ textAlign: 'center', borderRadius: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-                        <Statistic
-                            title="Utilisateurs inscrits"
-                            value={45}
-                            prefix={<UserOutlined style={{ color: '#52c41a' }} />}
-                        />
-                    </Card>
-                </Col>
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
-                <Col xs={24} sm={12} md={8}>
-                    <Card bordered={false} style={{ textAlign: 'center', borderRadius: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-                        <Statistic
-                            title="Livres empruntés"
-                            value={23}
-                            prefix={<ClockCircleOutlined style={{ color: '#faad14' }} />}
-                        />
-                    </Card>
-                </Col>
-            </Row>
+        const [resProduits, resCommandes] = await Promise.all([
+          axios.get("http://127.0.0.1:8000/api/produit/", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("http://127.0.0.1:8000/api/commande/", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-            {/* --- Section d'information --- */}
-            <Card
-                style={{
-                    marginTop: 30,
-                    borderRadius: 10,
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-                }}
-            >
-                <Title level={4}>📖 À propos</Title>
-                <Paragraph>
-                    Cette application vous permet de gérer les livres, les emprunts et les utilisateurs de la bibliothèque.
-                    Vous pouvez consulter les livres disponibles, enregistrer les nouveaux ouvrages, suivre les emprunts non rendus et bien plus encore.
-                </Paragraph>
-            </Card>
-        </div>
-    );
+        setStats({
+          produitsValides: resProduits.data.filter(p => p.statut === 'validee').length,
+          produitsRefuses: resProduits.data.filter(p => p.statut === 'refusee').length,
+          commandesValidees: resCommandes.data.filter(c => c.statut === 'Validée').length,
+          commandesRefusees: resCommandes.data.filter(c => c.statut === 'Refusée').length,
+        });
+      } catch (error) {
+        console.error(error);
+        message.error("Erreur lors du chargement des statistiques");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (loading) return <p>Chargement des statistiques...</p>;
+
+  const produitsData = [
+    { name: 'Validés', value: stats.produitsValides },
+    { name: 'Refusés', value: stats.produitsRefuses },
+  ];
+
+  const commandesData = [
+    { name: 'Validées', value: stats.commandesValidees },
+    { name: 'Refusées', value: stats.commandesRefusees },
+  ];
+
+  return (
+    <div style={{ padding: 20 }}>
+      <Title level={2}>Bienvenue dans votre tableau de bord 🛒</Title>
+      <Paragraph type="secondary">
+        Suivez vos publications et commandes en un coup d'œil.
+      </Paragraph>
+
+      <Row gutter={[16, 16]} style={{ marginTop: 20 }}>
+        <Col xs={24} sm={12} md={6}>
+          <Card bordered={false} style={{ textAlign: 'center', borderRadius: 10 }}>
+            <Statistic
+              title="Produits validés"
+              value={stats.produitsValides}
+              prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card bordered={false} style={{ textAlign: 'center', borderRadius: 10 }}>
+            <Statistic
+              title="Produits refusés"
+              value={stats.produitsRefuses}
+              prefix={<CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card bordered={false} style={{ textAlign: 'center', borderRadius: 10 }}>
+            <Statistic
+              title="Commandes validées"
+              value={stats.commandesValidees}
+              prefix={<ShoppingCartOutlined style={{ color: '#1890ff' }} />}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card bordered={false} style={{ textAlign: 'center', borderRadius: 10 }}>
+            <Statistic
+              title="Commandes refusées"
+              value={stats.commandesRefusees}
+              prefix={<StopOutlined style={{ color: '#faad14' }} />}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={[16, 16]} style={{ marginTop: 40 }}>
+        <Col xs={24} md={12}>
+          <Card title="Produits : validés vs refusés" style={{ borderRadius: 10 }}>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={produitsData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
+                  label
+                >
+                  {produitsData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </Card>
+        </Col>
+        <Col xs={24} md={12}>
+          <Card title="Commandes : validées vs refusées" style={{ borderRadius: 10 }}>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={commandesData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
+                  label
+                >
+                  {commandesData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </Card>
+        </Col>
+      </Row>
+    </div>
+  );
 };
 
 export default Accueil;

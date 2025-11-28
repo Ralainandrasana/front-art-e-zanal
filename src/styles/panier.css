@@ -21,6 +21,14 @@
     align-items: center;
 }
 
+.product-img {
+  width: 100px;        /* largeur maximale */
+  height: 100px;       /* hauteur maximale */
+  object-fit: cover;   /* ajuste l'image sans la déformer */
+  border-radius: 8px;  /* optionnel : coins arrondis */
+}
+
+
 .acheteur .header1 h2 img {
     margin-right: 5px;
 }

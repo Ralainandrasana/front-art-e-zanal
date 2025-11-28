@@ -368,3 +368,48 @@
 .bodyDetails .bottom .avis {
     margin: 50px 0 20px 0;
 }
+
+.product-detail-box {
+  background: linear-gradient(135deg, #3a6f9d, #1a84f5);
+  border-radius: 12px;
+  padding: 16px 20px;
+  color: #222;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  font-size: 15px;
+  width: fit-content;
+}
+
+.product-detail-box p {
+  margin: 6px 0;
+}
+
+.product-detail-box strong {
+  color: #101316;
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto 16px auto;
+}
+
+.product-image {
+  width: 100%;
+  max-width: 250px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.product-image:hover {
+  transform: scale(1.05);
+}
+

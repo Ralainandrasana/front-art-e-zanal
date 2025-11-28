@@ -1,118 +1,126 @@
-import React from "react";
-import { Table, Tag, Card, Typography, Divider } from "antd";
-import dayjs from "dayjs"; // ← npm install dayjs
+import React, { useEffect, useState } from "react";
+import { Table, Tag, Card, Typography, message, Row, Col } from "antd";
+import dayjs from "dayjs";
+import axios from "axios";
 
 const { Title } = Typography;
 
 const TransactionsAdmin = () => {
-    // --- Données factices (plus tard remplacées par les données backend) ---
-    const allTransactions = [
-        { key: "1", produit: "Panier artisanal en osier", date: "2025-10-18", operateur: "Yas", prix: "15 000 Ar" },
-        { key: "2", produit: "Collier perlé traditionnel", date: "2025-10-17", operateur: "Orange Money", prix: "25 000 Ar" },
-        { key: "3", produit: "Tapis malgache en raphia", date: "2025-10-12", operateur: "Airtel", prix: "40 000 Ar" },
-        { key: "4", produit: "Sac artisanal en cuir", date: "2025-10-09", operateur: "Yas", prix: "30 000 Ar" },
-        { key: "5", produit: "Bracelet en bois", date: "2025-10-08", operateur: "Airtel", prix: "10 000 Ar" },
-    ];
+  const [transactions, setTransactions] = useState([]);
 
-    // --- Détection automatique des périodes ---
-    const today = dayjs();
-    const startOfWeek = today.startOf("week");
-    const startOfLastWeek = startOfWeek.subtract(1, "week");
-    const endOfLastWeek = startOfWeek.subtract(1, "day");
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          "http://127.0.0.1:8000/api/administrateur/liste-paiements/",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-    // 🔹 Transactions récentes (les 3 derniers jours)
-    const transactionsRecentes = allTransactions.filter((t) =>
-        dayjs(t.date).isAfter(today.subtract(3, "day"))
-    );
+        const data = res.data.map((pay) => ({
+          key: pay.id_payement,
+          id_commande: pay.id_commande || "Produit inconnu",
+          id_user: pay.id_user || "Client inconnu",
+          date: pay.datePayement,
+          operateur: pay.typePayement,
+          prix: pay.montant.toLocaleString() + " Ar",
+        }));
 
-    // 🔹 Transactions de la semaine dernière
-    const transactionsSemaineDerniere = allTransactions.filter(
-        (t) =>
-            dayjs(t.date).isAfter(startOfLastWeek) &&
-            dayjs(t.date).isBefore(endOfLastWeek)
-    );
+        setTransactions(data);
+      } catch (error) {
+        console.error(error.response?.data || error);
+        message.error("Impossible de récupérer les transactions !");
+      }
+    };
 
-    // --- Colonnes du tableau ---
-    const columns = [
-        {
-            title: "Produit",
-            dataIndex: "produit",
-            key: "produit",
-            render: (text) => <strong>{text}</strong>,
-        },
-        {
-            title: "Date de transaction",
-            dataIndex: "date",
-            key: "date",
-        },
-        {
-            title: "Opérateur",
-            dataIndex: "operateur",
-            key: "operateur",
-            render: (operateur) => {
-                let color =
-                    operateur === "Yas"
-                        ? "green"
-                        : operateur === "Orange Money"
-                        ? "orange"
-                        : "red";
-                return <Tag color={color}>{operateur}</Tag>;
-            },
-        },
-        {
-            title: "Prix",
-            dataIndex: "prix",
-            key: "prix",
-            render: (text) => <span style={{ fontWeight: 500 }}>{text}</span>,
-        },
-    ];
+    fetchTransactions();
+  }, []);
 
-    return (
-        <div style={{ padding: 24 }}>
-            <Title level={2}>Transactions effectuées</Title>
+  const columns = [
+    {
+      title: "Commande",
+      dataIndex: "id_commande",
+      key: "commande",
+      render: (text) => <strong style={{ color: "#1890ff" }}>{text}</strong>,
+    },
+    {
+      title: "Client",
+      dataIndex: "id_user",
+      key: "client",
+      render: (text) => <span style={{ color: "#52c41a" }}>{text}</span>,
+    },
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      render: (date) => (
+        <span style={{ fontStyle: "italic", color: "#595959" }}>
+          {dayjs(date).format("DD/MM/YYYY HH:mm")}
+        </span>
+      ),
+    },
+    {
+      title: "Opérateur",
+      dataIndex: "operateur",
+      key: "operateur",
+      render: (operateur) => {
+        let color =
+          operateur === "Yas"
+            ? "green"
+            : operateur === "Orange Money"
+            ? "orange"
+            : "red";
+        return <Tag color={color} style={{ fontWeight: "bold" }}>{operateur}</Tag>;
+      },
+    },
+    {
+      title: "Montant",
+      dataIndex: "prix",
+      key: "prix",
+      render: (text) => <span style={{ fontWeight: 600, color: "#fa8c16" }}>{text}</span>,
+    },
+  ];
 
-            {/* --- Transactions récentes --- */}
-            {transactionsRecentes.length > 0 && (
-                <Card
-                    title=" Transactions récentes"
-                    bordered={false}
-                    style={{
-                        borderRadius: 10,
-                        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                        marginTop: 16,
-                    }}
-                >
-                    <Table
-                        columns={columns}
-                        dataSource={transactionsRecentes}
-                        pagination={false}
-                        rowHoverable
-                    />
-                </Card>
-            )}
+  return (
+    <div style={{ padding: 24, backgroundColor: "#f0f2f5", minHeight: "100vh" }}>
+      <Row gutter={[16, 16]}>
+        <Col span={24}>
+          <Title level={2} style={{ color: "#001529" }}>💰 Transactions</Title>
+        </Col>
+        <Col span={24}>
+          <Card
+            bordered={false}
+            style={{
+              borderRadius: 12,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              backgroundColor: "#ffffff",
+            }}
+          >
+            <Table
+              columns={columns}
+              dataSource={transactions}
+              rowKey="key"
+              pagination={{ pageSize: 10 }}
+              bordered
+              rowClassName={(record, index) =>
+                index % 2 === 0 ? "table-row-light" : "table-row-dark"
+              }
+            />
+          </Card>
+        </Col>
+      </Row>
 
-            <Divider style={{ margin: "40px 0" }}>Historique</Divider>
-
-            {/* --- Transactions de la semaine dernière --- */}
-            {transactionsSemaineDerniere.length > 0 && (
-                <Card
-                    title=" Transactions de la semaine dernière"
-                    bordered={false}
-                    style={{
-                        borderRadius: 10,
-                        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                    }}
-                >
-                    <Table
-                        columns={columns}
-                        dataSource={transactionsSemaineDerniere}
-                        pagination={false}
-                        rowHoverable
-                    />
-                </Card>
-            )}
-        </div>
-    );
+      {/* Styles supplémentaires pour alternance de lignes */}
+      <style jsx>{`
+        .table-row-light {
+          background-color: #f6ffed;
+        }
+        .table-row-dark {
+          background-color: #fffbe6;
+        }
+      `}</style>
+    </div>
+  );
 };
 
 export default TransactionsAdmin;

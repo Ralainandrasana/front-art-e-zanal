@@ -5,6 +5,22 @@ import "../../styles/acheteurAccueil.css";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Swal from "sweetalert2";
+import CompteClientModal from "./CompteClientModal";
+import CloseIcon from "@mui/icons-material/Close";
+
+// 🔹 Material UI
+import {
+  Button,
+  Badge,
+  TextField,
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  IconButton,
+  Box,
+} from "@mui/material";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 
 function AccueilAcheteur() {
   const [produits, setProduits] = useState([]);
@@ -14,6 +30,7 @@ function AccueilAcheteur() {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [showNotif, setShowNotif] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     fetchNotifications();
@@ -28,11 +45,11 @@ function AccueilAcheteur() {
         },
       });
       setNotifications(res.data);
+      console.log(res.data);
     } catch (error) {
       console.error("Erreur de chargement des notifications :", error);
     }
   };
-
 
   useEffect(() => {
     fetchPromotions();
@@ -52,7 +69,10 @@ function AccueilAcheteur() {
   useEffect(() => {
     axios
       .get("http://127.0.0.1:8000/api/produit/")
-      .then((res) => setProduits(res.data))
+      .then((res) => {
+        console.log(res.data); // <-- ici
+        setProduits(res.data);
+      })
       .catch((err) => console.error("Erreur chargement produits :", err));
   }, []);
 
@@ -87,58 +107,165 @@ function AccueilAcheteur() {
     navigate(`/Details/${id_produit}`);
   };
 
-  const handleNotificationClick = (notification) => {
-  Swal.fire({
-    title: "Procéder au paiement",
-    text: "Souhaitez-vous procéder au paiement pour cette commande ?",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Payer",
-    cancelButtonText: "Annuler",
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Redirection vers la page de paiement
-      navigate("/Payer"); // 🔹 change le chemin selon ta route réelle
+  const handleNotificationClick = async (notification) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    // 🔹 1. Marquer la notification comme lue côté backend
+    await axios.patch(
+      `http://127.0.0.1:8000/api/notification/${notification.id_notification}/mark_as_read/`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    // 🔹 2. Mettre à jour localement
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n.id_notification === notification.id_notification
+          ? { ...n, is_read: true }
+          : n
+      )
+    );
+
+    // 🔹 3. Vérifier le message et agir selon le cas
+    if (
+      notification.message.trim() ===
+      "Votre commande a été validée. Veuillez procéder au paiement pour obtenir la marchandise."
+    ) {
+      const id_commande = notification.commande?.id_commande;
+
+      if (!id_commande) {
+        console.warn("Aucune commande liée à cette notification.");
+        return;
+      }
+
+      // 🔹 4. Vérifier si la commande est déjà payée (backend)
+      const checkResponse = await axios.get(
+        `http://127.0.0.1:8000/api/payement/check/${id_commande}/`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (checkResponse.data?.isPaid) {
+        // 🔹 Si déjà payée
+        Swal.fire({
+          icon: "info",
+          title: "Commande déjà payée 💰",
+          text: "Vous avez déjà effectué le paiement pour cette commande.",
+          confirmButtonText: "OK",
+        });
+        return; // on stoppe ici
+      }
+
+      // 🔹 Sinon, proposer le paiement
+      Swal.fire({
+        title: "Commande validée 🎉",
+        text: "Souhaitez-vous procéder au paiement maintenant ?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Oui, payer",
+        cancelButtonText: "Plus tard",
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/Payer", {
+            state: {
+              id_commande,
+              montant: notification.commande?.total,
+            },
+          });
+        }
+      });
+    } else if (
+      notification.message.trim() === "Désolé, votre commande a été refusée."
+    ) {
+      Swal.fire({
+        icon: "info",
+        title: "Commande refusée ❌",
+        text: "Votre commande a été refusée.",
+        confirmButtonText: "OK",
+      });
     }
-  });
+  } catch (error) {
+    console.error("Erreur lors du clic sur la notification :", error);
+  }
 };
 
+
+  // ✅ Tout marquer comme lu
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.patch(
+        "http://127.0.0.1:8000/api/notification/mark_all_as_read/",
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    } catch (error) {
+      console.error("Erreur lors du marquage global :", error);
+    }
+  };
+
+  // 🔹 Compte combien de notifications non lues
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
     <>
       <Header />
+
       <div className="acheteur">
+        {/* Header */}
         <div className="header1">
           <h2 className="logo">
-            {" "}
             <img src="logos/logoPlateforme.png" alt="" /> art-e-zanal
           </h2>
+
           <div className="search">
-            <img src="icons/search.png" alt="" />
-            <input
-              type="text"
-              placeholder="recherche des matriaux: brique, sable, moellon, gravillon..."
+            <TextField
+              placeholder="Recherche des matériaux: brique, sable, moellon..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              variant="outlined"
+              size="small"
+              fullWidth
             />
           </div>
+
           <div className="compte-panier">
-            <button href="#">
-              <img src="icons/user.png" alt="" />
-              <p>Mon compte</p>
-            </button>
-            <button href="/Panier">
-              <img src="icons/shop.png" alt="" />
-              <p>Mon panier</p>
-            </button>
-            <button className="notif-btn" onClick={() => setShowNotif(!showNotif)}>
-    <img src="icons/bell.png" alt="" />
-    {notifications.some((n) => !n.is_read) && (
-      <span className="notif-badge"></span>
-    )}
-  </button>
+            <Button
+              onClick={() => setIsModalVisible(true)}
+              variant="text"
+              startIcon={<img src="icons/user.png" alt="" />}
+            >
+              Mon compte
+            </Button>
+            <CompteClientModal
+              visible={isModalVisible}
+              onClose={() => setIsModalVisible(false)}
+            />
+
+            <Button
+              onClick={() => navigate("/Panier")}
+              variant="text"
+              startIcon={<img src="icons/shop.png" alt="" />}
+            >
+              Mon panier
+            </Button>
+
+            <IconButton onClick={() => setShowNotif(!showNotif)}>
+              <Badge
+                color="error"
+                variant="dot"
+                invisible={notifications.every((n) => n.is_read)}
+              >
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
           </div>
         </div>
+
+        {/* Menu */}
         <div className="menu">
           <ul>
             <li>
@@ -154,23 +281,45 @@ function AccueilAcheteur() {
             </li>
           </ul>
         </div>
+
+        {/* ✅ Liste des notifications */}
         {showNotif && (
-    <div className="notif-dropdown">
-      {notifications.length > 0 ? (
-        notifications.map((n) => (
-          <div
-      key={n.id_notification}
-      className="notif-item cursor-pointer hover:bg-gray-100"
-      onClick={() => handleNotificationClick(n)}
-    >
-      {n.message}
-    </div>
-        ))
-      ) : (
-        <p>Aucune notification.</p>
-      )}
-    </div>
-  )}
+          <Box className="notif-dropdown">
+            <div className="notif-header">
+              <h3>Notifications</h3>
+              {unreadCount > 0 && (
+                <Button onClick={markAllAsRead} size="small" color="primary">
+                  Tout marquer comme lu
+                </Button>
+              )}
+              <IconButton size="small" onClick={() => setShowNotif(false)}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </div>
+            <div className="notif-list">
+              {notifications.length > 0 ? (
+                notifications.map((n) => (
+                  <Box
+                    key={n.id_notification}
+                    className={`notif-item cursor-pointer ${
+                      !n.is_read ? "unread" : ""
+                    }`}
+                    onClick={() => handleNotificationClick(n)}
+                    sx={{ p: 1, borderBottom: "1px solid #eee" }}
+                  >
+                    <Typography variant="body2">{n.message}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {new Date(n.date_creation).toLocaleString()}
+                    </Typography>
+                  </Box>
+                ))
+              ) : (
+                <p className="no-notif">Aucune notification.</p>
+              )}
+            </div>
+          </Box>
+        )}
+        {/* Header2 */}
         <div className="header2">
           <div className="left">
             <h2>Commandez vos matériaux en ligne</h2>
@@ -181,6 +330,8 @@ function AccueilAcheteur() {
             <img src="images/brique.png" alt="" />
           </div>
         </div>
+
+        {/* Les incontournables */}
         <div className="content2">
           <div className="title">
             <h2 className="left">Les incontournables</h2>
@@ -190,30 +341,30 @@ function AccueilAcheteur() {
             <div className="wrapContent">
               {produits.length > 0 ? (
                 produits
+                  .filter((p) => p.statut === "validee")
                   .filter((p) =>
                     p.nomProduit
                       .toLowerCase()
                       .includes(searchTerm.toLowerCase())
                   )
                   .map((produit) => (
-                    <div
-                      className="li"
+                    <Card
                       key={produit.id_produit}
+                      className="li cursor-pointer hover:scale-105 transition-transform duration-200"
                       onClick={() => handleProduitClick(produit.id_produit)}
-                      style={{ cursor: "pointer" }}
                     >
-                      <img
-                        src={`http://127.0.0.1:8000${produit.image}`}
+                      <CardMedia
+                        component="img"
+                        image={produit.image || "images/default.png"}
                         alt={produit.nomProduit}
-                        onError={(e) => {
-                          e.target.src = "images/default.png";
-                        }}
                       />
-                      <p>{produit.nomProduit}</p>
-                      <p>
-                        <strong>{produit.prixUnitaire} Ar</strong>
-                      </p>
-                    </div>
+                      <CardContent>
+                        <Typography>{produit.nomProduit}</Typography>
+                        <Typography>
+                          <strong>{produit.prixUnitaire} Ar</strong>
+                        </Typography>
+                      </CardContent>
+                    </Card>
                   ))
               ) : (
                 <p>Aucun produit disponible</p>
@@ -221,6 +372,8 @@ function AccueilAcheteur() {
             </div>
           </div>
         </div>
+
+        {/* Promotions */}
         <div className="content1">
           <div className="title">
             <h2 className="left">
@@ -237,33 +390,29 @@ function AccueilAcheteur() {
               );
               const saveAmount = promo.prixAvant - promo.prixApres;
               return (
-                <div className="card" key={promo.id_prom}>
-                  <div className="top">
-                    <img
-                      src={
-                        promo.id_produit.image
-                          ? `http://127.0.0.1:8000${promo.id_produit.image}`
-                          : "images/default.png"
-                      }
-                      alt={promo.id_produit.nomProduit}
-                    />
-                    <div className="reduction">-{reduction}%</div>
-                  </div>
-                  <div className="center">
-                    <p>{promo.id_produit.nomProduit}</p>
-                    <p>
+                <Card key={promo.id_prom} className="card">
+                  <CardMedia
+                    component="img"
+                    image={promo.id_produit.image || "images/default.png"}
+                    alt={promo.id_produit.nomProduit}
+                  />
+                  <CardContent>
+                    <Typography>{promo.id_produit.nomProduit}</Typography>
+                    <Typography>
                       {promo.prixApres} ar{" "}
                       <span className="through">{promo.prixAvant} ar</span>
-                    </p>
-                  </div>
-                  <div className="bottom">
-                    <p>Save - {saveAmount} ar</p>
-                  </div>
-                </div>
+                    </Typography>
+                    <Typography variant="caption">
+                      Save - {saveAmount} ar
+                    </Typography>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>
         </div>
+
+        {/* Matériaux disponibles */}
         <div className="content2">
           <div className="title">
             <h2 className="left">
@@ -274,26 +423,37 @@ function AccueilAcheteur() {
           <div className="content">
             <div className="wrapContent">
               {materiaux.length > 0 ? (
-                materiaux.map((mat) => (
-                  <div
-                    className="li cursor-pointer hover:scale-105 transition-transform duration-200"
-                    key={mat.id_produit}
-                    onClick={() => handleProduitClick(mat.id_produit)}
-                  >
-                    <img
-                      src={`http://127.0.0.1:8000${mat.image}`}
-                      alt={mat.nomProduit}
-                      onError={(e) => (e.target.src = "images/default.png")} // image de secours
-                    />
-                    <p>{mat.nomProduit}</p>
-                  </div>
-                ))
+                materiaux
+                  .filter((mat) => mat.statut === "validee")
+                  .filter((mat) =>
+                    mat.nomProduit
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  )
+                  .map((mat) => (
+                    <Card
+                      key={mat.id_produit}
+                      className="li cursor-pointer hover:scale-105 transition-transform duration-200"
+                      onClick={() => handleProduitClick(mat.id_produit)}
+                    >
+                      <CardMedia
+                        component="img"
+                        image={mat.image || "images/default.png"}
+                        alt={mat.nomProduit}
+                      />
+                      <CardContent>
+                        <Typography>{mat.nomProduit}</Typography>
+                      </CardContent>
+                    </Card>
+                  ))
               ) : (
-                <p>Aucun matériau disponible pour le moment.</p>
+                <p>Aucun matériaux disponible pour le moment.</p>
               )}
             </div>
           </div>
         </div>
+
+        {/* Fournisseurs */}
         <div className="content3">
           <div className="title">
             <h2 className="left">
@@ -330,6 +490,8 @@ function AccueilAcheteur() {
             </div>
           </div>
         </div>
+
+        {/* Produits moins chers */}
         <div className="content4">
           <div className="title">
             <h2 className="left">
@@ -339,34 +501,43 @@ function AccueilAcheteur() {
               Voir tous <img src="icons/ArrowLeft.png" alt="" />
             </p>
           </div>
-
           <div className="content">
             <div className="wrapContent">
               {produits.length > 0 ? (
-          produits.map((produit) => (
-            <div
-              className="li cursor-pointer hover:scale-105 transition-transform duration-200"
-              key={produit.id_produit}
-              onClick={() => handleProduitClick(produit.id_produit)}
-            >
-              <img
-                src={`http://127.0.0.1:8000${produit.image}`}
-                alt={produit.nomProduit}
-                onError={(e) => (e.target.src = "images/default.png")} // image de secours
-              />
-              <p>{produit.nomProduit}</p>
-              <p>
-                <strong>{produit.prixUnitaire} Ar</strong>
-              </p>
-            </div>
-          ))
-        ) : (
-          <p>Aucun produit à afficher.</p>
-        )}
+                produits
+                  .filter((p) => p.statut === "validee")
+                  .filter((p) =>
+                    p.nomProduit
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  )
+                  .map((produit) => (
+                    <Card
+                      key={produit.id_produit}
+                      className="li cursor-pointer hover:scale-105 transition-transform duration-200"
+                      onClick={() => handleProduitClick(produit.id_produit)}
+                    >
+                      <CardMedia
+                        component="img"
+                        image={produit.image || "images/default.png"}
+                        alt={produit.nomProduit}
+                      />
+                      <CardContent>
+                        <Typography>{produit.nomProduit}</Typography>
+                        <Typography>
+                          <strong>{produit.prixUnitaire} Ar</strong>
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  ))
+              ) : (
+                <p>Aucun produit à afficher.</p>
+              )}
             </div>
           </div>
         </div>
       </div>
+
       <Footer />
     </>
   );

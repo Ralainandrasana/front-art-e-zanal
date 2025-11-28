@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "../../styles/payer.css";
@@ -9,11 +9,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 function Payer() {
   const navigate = useNavigate();
   const location = useLocation();
-  
+  const { id_user, id_commande, montant } = location.state || {};
 
-  // 🔹 Données passées via navigate("/Paiement", { state: { commande } })
-  const commande = location.state?.commande;
-
+  // 🔹 Commande et montant côté Panier
   const [operateur, setOperateur] = useState("");
   const [formData, setFormData] = useState({
     nom: "",
@@ -22,52 +20,74 @@ function Payer() {
     code: "",
   });
 
-  // 🔹 Exemple de montant à payer (ou celui de la commande)
-  const montant = commande?.montant || 50000;
+  // // 🔹 Récupérer la commande validée depuis l'id_notification si nécessaire
+  // useEffect(() => {
+  //   const fetchCommandeFromNotif = async () => {
+  //     if (!id_notification || commande) return; // déjà récupéré depuis Panier
 
-  // 🔹 Gestion du changement dans le formulaire
+  //     try {
+  //       const token = localStorage.getItem("token");
+  //       const response = await axios.get(
+  //         `http://127.0.0.1:8000/api/notification/commande-from-notif/${id_notification}/`,
+  //         {
+  //           headers: { Authorization: `Bearer ${token}` },
+  //         }
+  //       );
+
+  //       setCommande(response.data);
+  //       setMontant(response.data.total); // montant validé côté backend
+  //     } catch (error) {
+  //       console.error(
+  //         "Erreur récupération commande depuis notification :",
+  //         error.response?.data || error.message
+  //       );
+  //       Swal.fire(
+  //         "Erreur",
+  //         "Impossible de récupérer la commande depuis la notification",
+  //         "error"
+  //       );
+  //     }
+  //   };
+
+  //   fetchCommandeFromNotif();
+  // }, [id_notification, commande]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Soumission du paiement simulé
   const handlePaiement = async () => {
-    if (!operateur) {
-      Swal.fire("Erreur", "Veuillez choisir un opérateur", "error");
-      return;
-    }
-
-    if (!formData.telephone || !formData.code) {
-      Swal.fire("Erreur", "Veuillez remplir tous les champs", "error");
-      return;
-    }
+    if (!operateur)
+      return Swal.fire("Erreur", "Veuillez choisir un opérateur", "error");
+    if (!formData.telephone || !formData.code)
+      return Swal.fire("Erreur", "Veuillez remplir tous les champs", "error");
+    if (!id_commande) return Swal.fire("Erreur", "Commande introuvable", "error");
 
     try {
-    const token = localStorage.getItem("token"); // JWT
-    const response = await axios.post(
-      "http://127.0.0.1:8000/api/payement/simuler/",
-      {
-        montant: formData.montant,        // Float
-        typePayement: formData.typePayement, // string ("Telma", "Airtel", ...)
-        id_commande: formData.id_commande,  // string, ex: "COM001"
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    
+      const token = localStorage.getItem("token");
+      await axios.post(
+        "http://127.0.0.1:8000/api/payement/simuler/",
+        {
+          montant,
+          typePayement: operateur,
+          id_commande: id_commande,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       Swal.fire({
         title: "Paiement réussi ✅",
-        text: `Vous avez payé ${montant} Ar via ${operateur}.`,
+        text: `Vous avez payé ${montant.toLocaleString()} Ar via ${operateur}.`,
         icon: "success",
         confirmButtonText: "OK",
-      }).then(() => {
-        navigate("/"); // Redirection vers l’accueil
-      });
+      }).then(() => navigate("/Acheteur"));
     } catch (error) {
-      console.error("Erreur de paiement :", error);
+      console.error(
+        "Erreur de paiement :",
+        error.response?.data || error.message
+      );
       Swal.fire("Erreur", "Échec du paiement simulé", "error");
     }
   };
@@ -78,46 +98,18 @@ function Payer() {
       <div className="acheteur">
         <div className="header1">
           <h2 className="logo">
-            {" "}
             <img src="logos/logoPlateforme.png" alt="" /> art-e-zanal
           </h2>
-          <div className="search">
-            <img src="icons/search.png" alt="" />
-            <input
-              type="text"
-              placeholder="recherche des matriaux: brique, sable, moellon, gravillon..."
-            />
-          </div>
-          <div className="compte-panier">
-            <button>
-              <img src="icons/user.png" alt="" />
-              <p>Mon compte</p>
-            </button>
-          </div>
         </div>
-        <div className="menu">
-          <ul>
-            <li>
-              <a href="#" className="activated">
-                Accueil
-              </a>
-            </li>
-            <li>
-              <a href="#">Produits</a>
-            </li>
-            <li>
-              <a href="#">Contact</a>
-            </li>
-          </ul>
-        </div>
+
         <div className="content2">
           <div className="titlePanier">
-            <h3 className="left">Payement</h3>
+            <h3 className="left">Paiement</h3>
           </div>
           <div className="body">
             <div className="left">
               <div className="top">
-                <strong>Methode de payement</strong>
+                <strong>Méthode de paiement</strong>
                 <div className="operateur telma">
                   <img src="logos/telma.png" alt="" />
                   <input
@@ -149,60 +141,56 @@ function Payer() {
                   />
                 </div>
               </div>
-              <div className="bottom">
-                <p>Vous avez à payer </p>
-                <h1>{montant.toLocaleString()} Ar</h1>
-                <p>
-                  <img src="icons/badge-check.png" alt="" /> Nous prenons soin
-                  de tout pour vous. Effectuez vos paiements en toute{" "}
-                </p>
-                <p>
-                  sécurité pendant que nous assurons le bon traitement de votre
-                </p>
-                <p>transaction.</p>
-              </div>
+              <strong>Vous avez à payer</strong>
+              <p>
+                <span>{montant.toLocaleString()} Ar</span>
+              </p>
             </div>
+{/* <div className="right">
+                            <h1>Details</h1>
+                            <div className="formPayment">
+                                <label htmlFor="nom">Nom</label><br /><input type="text" /><br />
+                                <label htmlFor="nom">Prenom</label><br /><input type="text" /><br />
+                                <label htmlFor="nom">Numéro Téléphone</label><br /><input type="text" placeholder='+261...' /><br />
+                                <label htmlFor="nom">code</label><br /><input type="text" placeholder='XXXX' /><br />
+                                <div className="btn">
+                                    <button>Payer</button>
+                                </div>
+                            </div>
+                        </div> */}
             <div className="right">
-              <h1>Details</h1>
+              <h1>Détails</h1>
               <div className="formPayment">
-                <label htmlFor="nom">Nom</label>
-                <br />
+                <label>Nom</label><br />
                 <input
                   type="text"
                   name="nom"
                   value={formData.nom}
                   onChange={handleChange}
-                />
-                <br />
-                <label htmlFor="nom">Prenom</label>
-                <br />
+                /><br />
+                <label>Prénom</label><br />
                 <input
                   type="text"
                   name="prenom"
                   value={formData.prenom}
                   onChange={handleChange}
-                />
-                <br />
-                <label htmlFor="nom">Numéro Téléphone</label>
-                <br />
+                /><br />
+                <label>Numéro Téléphone</label><br />
                 <input
                   type="text"
                   name="telephone"
                   placeholder="+261..."
                   value={formData.telephone}
                   onChange={handleChange}
-                />
-                <br />
-                <label htmlFor="nom">code</label>
-                <br />
+                /><br />
+                <label>Code</label><br />
                 <input
                   type="password"
                   name="code"
                   placeholder="XXXX"
                   value={formData.code}
                   onChange={handleChange}
-                />
-                <br />
+                /><br />
                 <div className="btn">
                   <button onClick={handlePaiement}>Payer</button>
                 </div>
